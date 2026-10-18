@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, formatDate, withBase } from '../lib/posts';
+import { SITE } from '../site.config';
+
+const posts = await getPosts();
+---
+
+<Base title={SITE.name}>
+  <section class="intro">
+    <h1>{SITE.name}</h1>
+    <p>{SITE.description}</p>
+  </section>
+
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <a href={withBase(`posts/${post.id}/`)}>
+            <h2>
+              {post.data.title}
+              {post.data.draft && <span class="draft-badge">Draft</span>}
+            </h2>
+            <p>{post.data.description}</p>
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

@@ -1,0 +1,60 @@
+---
+// Minimal interactive component: a custom element keeps each instance's state independent.
+interface Props {
+  start?: number;
+}
+
+const { start = 0 } = Astro.props;
+---
+
+<demo-counter data-start={start}>
+  <button type="button" data-step="-1" aria-label="Decrement">−</button>
+  <output>{start}</output>
+  <button type="button" data-step="1" aria-label="Increment">+</button>
+</demo-counter>
+
+<style>
+  demo-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0.75rem 0.25rem 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font: 600 1rem/1 var(--font-body);
+    cursor: pointer;
+  }
+
+  output {
+    min-width: 2.5ch;
+    text-align: center;
+    font-family: var(--font-mono);
+  }
+</style>
+
+<script>
+  class DemoCounter extends HTMLElement {
+    connectedCallback() {
+      const output = this.querySelector('output')!;
+      let value = Number(this.dataset.start ?? 0);
+      this.addEventListener('click', (e) => {
+        const button = (e.target as HTMLElement).closest('button');
+        if (!button) return;
+        value += Number(button.dataset.step);
+        output.textContent = String(value);
+      });
+    }
+  }
+  customElements.define('demo-counter', DemoCounter);
+</script>

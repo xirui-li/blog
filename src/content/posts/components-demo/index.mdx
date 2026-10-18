@@ -1,0 +1,77 @@
+---
+title: 'Components Demo'
+description: 'Reference page for the building blocks available in posts. Draft-only: visible in `npm run dev`, never published.'
+date: 2026-10-16
+draft: true
+---
+
+import Figure from '../../../components/Figure.astro';
+import Video from '../../../components/Video.astro';
+import Counter from './Counter.astro';
+
+This post is a living reference for what can go inside an `.mdx` post. It is marked `draft: true`, so it only shows up in the dev server.
+
+## Video
+
+Paths are relative to `public/`. Absolute URLs work too, for clips hosted outside the repo.
+
+```mdx
+<Video src="videos/components-demo/test-pattern.mp4"
+       poster="videos/components-demo/test-pattern.jpg"
+       caption="A standard player." />
+```
+
+<Video
+  src="videos/components-demo/test-pattern.mp4"
+  poster="videos/components-demo/test-pattern.jpg"
+  caption="mode='player' (default): controls, metadata-only preload."
+/>
+
+<Video
+  src="videos/components-demo/test-pattern.mp4"
+  mode="ambient"
+  caption="mode='ambient': muted autoplay loop, no controls. Good for short rollouts."
+/>
+
+<Video
+  src="videos/components-demo/test-pattern.mp4"
+  mode="ambient"
+  wide
+  caption="wide: extends past the text column on large screens."
+/>
+
+## Interactive components
+
+Any `.astro` component with a `<script>` works; the script is bundled and loaded once per page. Post-specific components live next to the post's `index.mdx`.
+
+<Figure caption="Counter.astro — two instances, each with independent state.">
+  <Counter />
+  <Counter start={10} />
+</Figure>
+
+To use a UI framework (React, Svelte, …) instead, add its integration with `npx astro add react` and hydrate the component with a directive such as `client:visible`.
+
+## Figures and images
+
+```mdx
+<Figure caption="Caption text.">
+  ![alt text](./diagram.png)
+</Figure>
+```
+
+Images placed next to the post and referenced with a relative path are optimized at build time.
+
+## Code, tables, and footnotes
+
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}!"
+```
+
+| Column | Column |
+|---|---|
+| GFM tables | work |
+
+Footnotes work as well.[^1]
+
+[^1]: Like this one.
