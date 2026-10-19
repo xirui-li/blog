@@ -20,8 +20,8 @@ const { start = 0 } = Astro.props;
     gap: 0.75rem;
     margin: 0.25rem 0.75rem 0.25rem 0;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
     background: var(--surface);
   }
 
@@ -29,17 +29,17 @@ const { start = 0 } = Astro.props;
     width: 2rem;
     height: 2rem;
     border: 0;
-    border-radius: 6px;
-    background: var(--accent);
-    color: var(--accent-fg);
-    font: 600 1rem/1 var(--font-body);
+    border-radius: 5px;
+    background: var(--ink);
+    color: #fff;
+    font: 400 1rem/1 var(--sans);
     cursor: pointer;
   }
 
   output {
     min-width: 2.5ch;
     text-align: center;
-    font-family: var(--font-mono);
+    font-family: var(--mono);
   }
 </style>
 

@@ -1,4 +1,7 @@
 ---
+import '@fontsource-variable/inter';
+import '@fontsource/libre-baskerville/400.css';
+import '@fontsource/libre-baskerville/400-italic.css';
 import '../styles/global.css';
 import { withBase } from '../lib/posts';
 import { SITE } from '../site.config';
@@ -13,6 +16,7 @@ const { title, description = SITE.description, ogType = 'website' } = Astro.prop
 const siteName = SITE.name;
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const isHome = Astro.url.pathname === withBase('/');
 ---
 
 <!doctype html>
@@ -33,7 +37,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <header class="site-header">
-      <a class="site-name" href={withBase('/')}>{siteName}</a>
+      <div class="nav-wrap">
+        <a class="wordmark" href={withBase('/')}>{siteName}</a>
+        <nav class="nav-links" aria-label="Site">
+          <a href={withBase('/')} aria-current={isHome ? 'page' : undefined}>Posts</a>
+          <a class="nav-button" href={SITE.sourceUrl}>GitHub</a>
+        </nav>
+      </div>
     </header>
     <main>
       <slot />

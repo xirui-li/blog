@@ -11,20 +11,20 @@ interface Props {
 
 const { post, headings } = Astro.props;
 const { title, description, date, updated, authors, draft } = post.data;
-const toc = headings.filter((h) => h.depth === 2);
+const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label');
 ---
 
 <Base title={title} description={description} ogType="article">
   <article class="post">
     <header class="post-header">
       {draft && <p class="draft-badge">Draft — not published</p>}
-      <h1>{title}</h1>
-      <p class="post-description">{description}</p>
-      <p class="post-meta">
-        {authors.length > 0 && <span>{authors.join(', ')} · </span>}
+      <p class="eyebrow">
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
         {updated && <span> · Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time></span>}
       </p>
+      <h1>{title}</h1>
+      <p class="post-description">{description}</p>
+      {authors.length > 0 && <p class="post-meta">{authors.join(' · ')}</p>}
     </header>
 
     {

@@ -8,6 +8,7 @@ const posts = await getPosts();
 
 <Base title={SITE.name}>
   <section class="intro">
+    <p class="eyebrow">{SITE.author}</p>
     <h1>{SITE.name}</h1>
     <p>{SITE.description}</p>
   </section>
@@ -16,14 +17,15 @@ const posts = await getPosts();
     {
       posts.map((post) => (
         <li>
-          <a href={withBase(`posts/${post.id}/`)}>
+          <article>
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
             <h2>
-              {post.data.title}
+              <a href={withBase(`posts/${post.id}/`)}>{post.data.title}</a>
               {post.data.draft && <span class="draft-badge">Draft</span>}
             </h2>
             <p>{post.data.description}</p>
-            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-          </a>
+            <a class="read-link" href={withBase(`posts/${post.id}/`)}>Read post →</a>
+          </article>
         </li>
       ))
     }
