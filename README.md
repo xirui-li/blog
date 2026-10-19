@@ -100,6 +100,7 @@ import Diagram from '../../../components/Diagram.astro';
 - Edges route automatically with rounded corners. Override with `fromSide`/`toSide`, `fromAt`/`toAt` (0–1 along the side), `mid`, or explicit `via` waypoints; add `label`, `labelAt`, `dashed`.
 - Groups: dashed boxes with a `top` label ("STAGE 1") or `labelPos: 'bracket'` ("[ GEOMETRY MODEL ]"); `variant: 'filled'` for a gray backdrop.
 - `legend={{ x, y, direction: 'row', items: [{ kind: 'model', label: 'Model Training' }] }}`.
+- `animate` sends a token along the edges at constant speed, in `step` order (edges sharing a step move together), pulsing each node on arrival. Off under reduced motion.
 
 See the Diagrams section of `components-demo` for a full recreation of a paper figure.
 

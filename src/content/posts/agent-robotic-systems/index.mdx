@@ -24,13 +24,13 @@ import Diagram from '../../../components/Diagram.astro';
 {/* TODO: replace this figure with the loop diagram, annotated with where each concept lives. */}
 
 <Figure
-  wide
   title="Agent robotic system."
   caption="An agent turns a task instruction into calls to a skill library; skills drive real-time controllers on the robot. Observations from the robot's sensors flow back to the agent, closing the loop."
 >
   <Diagram
     width={1000}
     height={290}
+    animate
     label="Diagram: Task Instruction to Agent (LLM / VLM) to Skill Library to Controller to Robot; Robot sensing feeds Observations, which feed back to the Agent."
     nodes={[
       { id: 'task', x: 20, y: 50, w: 140, h: 60, label: 'Task\nInstruction', kind: 'source' },
@@ -43,12 +43,12 @@ import Diagram from '../../../components/Diagram.astro';
       { id: 'obs', x: 450, y: 212, w: 160, h: 56, label: 'Observations', kind: 'source' },
     ]}
     edges={[
-      { from: 'task', to: 'agent' },
-      { from: 'agent', to: 'skills' },
-      { from: 'skills', to: 'ctrl' },
-      { from: 'ctrl', to: 'robot' },
-      { from: 'robot', to: 'obs', fromSide: 'bottom', toSide: 'right', label: 'SENSING', labelAt: 0.3 },
-      { from: 'obs', to: 'agent', fromSide: 'left', toSide: 'bottom', label: 'FEEDBACK', labelAt: 0.35 },
+      { from: 'task', to: 'agent', step: 0 },
+      { from: 'agent', to: 'skills', step: 1 },
+      { from: 'skills', to: 'ctrl', step: 2 },
+      { from: 'ctrl', to: 'robot', step: 3 },
+      { from: 'robot', to: 'obs', fromSide: 'bottom', toSide: 'right', label: 'SENSING', labelAt: 0.3, step: 4 },
+      { from: 'obs', to: 'agent', fromSide: 'left', toSide: 'bottom', label: 'FEEDBACK', labelAt: 0.35, step: 5 },
     ]}
   />
 </Figure>

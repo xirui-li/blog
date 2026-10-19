@@ -21,13 +21,13 @@ Notes on research, engineering, and things I am learning along the way.
 Each post is a folder under `src/content/posts/` with an `index.mdx` file. Posts can mix Markdown with components such as videos, figures, diagrams, and interactive widgets.
 
 <Figure
-  wide
   title="Publishing pipeline."
   caption="A post is written locally as MDX and built into static pages by Astro. Every push to main triggers GitHub Actions, which builds the site again and deploys it to GitHub Pages."
 >
   <Diagram
     width={960}
     height={215}
+    animate
     label="Diagram: index.mdx goes through Astro Build locally, then git push to GitHub Actions, which deploys to GitHub Pages."
     groups={[
       { x: 10, y: 40, w: 420, h: 165, label: 'Local' },

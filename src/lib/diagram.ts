@@ -75,6 +75,8 @@ export interface DiagramEdge {
   labelAt?: number;
   dashed?: boolean;
   arrow?: boolean;
+  /** With <Diagram animate>: when a token travels this edge (edges sharing a step move together). Defaults to the edge's index. */
+  step?: number;
 }
 
 export interface DiagramGroup {
@@ -151,6 +153,8 @@ export interface RoutedEdge {
   arrow?: string;
   label?: { x: number; y: number; text: string };
   dashed: boolean;
+  /** Path length in viewBox units (for constant-speed animation). */
+  length: number;
 }
 
 export function routeEdge(e: DiagramEdge, nodes: Map<string, DiagramNode>): RoutedEdge {
@@ -216,9 +220,9 @@ export function routeEdge(e: DiagramEdge, nodes: Map<string, DiagramNode>): Rout
     arrow = `M${fmt([back[0] + wing[0], back[1] + wing[1]])} L${fmt(t)} L${fmt([back[0] - wing[0], back[1] - wing[1]])}`;
   }
 
+  const lens = pts.slice(1).map((q, i) => Math.hypot(q[0] - pts[i][0], q[1] - pts[i][1]));
   let label: RoutedEdge['label'];
   if (e.label) {
-    const lens = pts.slice(1).map((q, i) => Math.hypot(q[0] - pts[i][0], q[1] - pts[i][1]));
     let target = lens.reduce((s, l) => s + l, 0) * (e.labelAt ?? 0.5);
     let i = 0;
     while (i < lens.length - 1 && target > lens[i]) target -= lens[i++];
@@ -230,5 +234,5 @@ export function routeEdge(e: DiagramEdge, nodes: Map<string, DiagramNode>): Rout
     };
   }
 
-  return { d, arrow, label, dashed: !!e.dashed };
+  return { d, arrow, label, dashed: !!e.dashed, length: lens.reduce((s, l) => s + l, 0) };
 }
