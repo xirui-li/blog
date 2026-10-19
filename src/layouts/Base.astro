@@ -43,7 +43,7 @@ const isHome = Astro.url.pathname === withBase('/');
         <a class="wordmark" href={withBase('/')}>{siteName}</a>
         <nav class="nav-links" aria-label="Site">
           <a href={withBase('/')} aria-current={isHome ? 'page' : undefined}>Posts</a>
-          <a class="nav-button" href={SITE.sourceUrl}>GitHub</a>
+          <a class="nav-button" href={SITE.homepage}>Homepage</a>
         </nav>
       </div>
     </header>

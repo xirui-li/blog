@@ -19,7 +19,7 @@ One-time GitHub setup: **Settings → Pages → Source: GitHub Actions**.
 
 ```
 src/
-├── site.config.ts             # site name, author, description, source link
+├── site.config.ts             # site name, author, description, homepage, source link
 ├── content.config.ts          # post schema (title, description, date, draft, …)
 ├── content/posts/<slug>/
 │   ├── index.mdx              # the post; URL is /blog/posts/<slug>/
