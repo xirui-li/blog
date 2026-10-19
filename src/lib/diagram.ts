@@ -77,6 +77,8 @@ export interface DiagramEdge {
   arrow?: boolean;
   /** With <Diagram animate>: when a token travels this edge (edges sharing a step move together). Defaults to the edge's index. */
   step?: number;
+  /** With <Diagram animate>: no token on this edge (e.g. a long annotation line). */
+  still?: boolean;
 }
 
 export interface DiagramGroup {
