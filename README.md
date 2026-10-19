@@ -104,7 +104,7 @@ See the Diagrams section of `components-demo` for a full recreation of a paper f
 
 ### Layout and the 3D side panel
 
-On screens wider than 900px the page splits like lego-anything.com: a fixed left third (`.side-panel` in `Base.astro`) and the reading column in the right two thirds. The side panel holds only the 3D scene.
+On screens wider than 900px, post pages split like lego-anything.com (the home page stays a single centered column): a fixed left third (`.side-panel` in `Base.astro`) and the reading column in the right two thirds. The side panel holds only the 3D scene.
 
 The scene (`src/lib/scene3d.ts`) renders white, procedurally built buildings — `pagoda`, `lighthouse`, `temple`, `observatory`, `windmill`, `temple_of_heaven` — that rotate as you scroll; each `##` section of a post crossfades to the next building. three.js is loaded only on wide screens. Add `?scene=<name>` to any URL to preview a specific model; add a new model by adding a builder to `MODELS`.
 

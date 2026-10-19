@@ -14,7 +14,7 @@ const { title, description, date, updated, authors, draft } = post.data;
 const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label');
 ---
 
-<Base title={title} description={description} ogType="article">
+<Base title={title} description={description} ogType="article" split>
   <article class="post">
     <header class="post-header">
       {draft && <p class="draft-badge">Draft — not published</p>}

@@ -66,12 +66,13 @@ strong {
 }
 
 main {
-  padding: 0 64px 5rem;
+  padding: 0 40px 5rem;
 }
 
 /* ---------- split layout (after lego-anything.com) ----------
-   The side panel is fixed to the left third of the viewport; the reading
-   column is left-aligned within the right two thirds. */
+   Post pages (body.is-split): the side panel is fixed to the left third of
+   the viewport; the reading column is left-aligned in the right two thirds.
+   Other pages use a single centered column. */
 
 .side-panel {
   position: fixed;
@@ -110,9 +111,13 @@ main {
   opacity: 0;
 }
 
-.reading {
+.is-split .reading {
   width: 66.666667%;
   margin-left: 33.333333%;
+}
+
+.is-split main {
+  padding-inline: 64px;
 }
 
 /* ---------- site chrome ---------- */
@@ -184,10 +189,11 @@ main {
 
 .site-footer {
   max-width: var(--measure);
-  margin: 0 64px;
+  margin: 0 auto;
   padding: 2rem 0 2.5rem;
   border-top: 1px solid var(--line);
   display: flex;
+  justify-content: center;
   gap: 1.25rem;
   font-size: 11px;
   line-height: 1.65;
@@ -196,6 +202,11 @@ main {
 
 .site-footer a {
   color: inherit;
+}
+
+.is-split .site-footer {
+  margin-inline: 64px;
+  justify-content: flex-start;
 }
 
 /* ---------- headings ---------- */
@@ -212,7 +223,9 @@ h3 {
 
 .intro {
   max-width: var(--measure);
+  margin: 0 auto;
   padding: 5rem 0 3rem;
+  text-align: center;
 }
 
 .intro h1 {
@@ -237,7 +250,7 @@ h3 {
 
 .post-list {
   max-width: var(--measure);
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   list-style: none;
   display: grid;
@@ -563,7 +576,7 @@ h3 {
   .side-panel {
     display: none;
   }
-  .reading {
+  .is-split .reading {
     width: 100%;
     margin-left: 0;
   }
@@ -584,10 +597,12 @@ h3 {
   :root {
     --nav-height: 63px;
   }
-  main {
+  main,
+  .is-split main {
     padding-inline: 20px;
   }
-  .site-footer {
+  .site-footer,
+  .is-split .site-footer {
     margin-inline: 20px;
   }
   .nav-wrap {

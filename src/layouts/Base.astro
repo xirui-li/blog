@@ -11,9 +11,11 @@ interface Props {
   title: string;
   description?: string;
   ogType?: 'website' | 'article';
+  /** Split layout: fixed 3D scene in the left third, reading column in the right two thirds. */
+  split?: boolean;
 }
 
-const { title, description = SITE.description, ogType = 'website' } = Astro.props;
+const { title, description = SITE.description, ogType = 'website', split = false } = Astro.props;
 const siteName = SITE.name;
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -37,7 +39,7 @@ const isHome = Astro.url.pathname === withBase('/');
     <meta property="og:site_name" content={siteName} />
     <meta name="twitter:card" content="summary" />
   </head>
-  <body>
+  <body class:list={{ 'is-split': split }}>
     <header class="site-header">
       <div class="nav-wrap">
         <a class="wordmark" href={withBase('/')}>{siteName}</a>
@@ -47,10 +49,13 @@ const isHome = Astro.url.pathname === withBase('/');
         </nav>
       </div>
     </header>
-    <!-- Left third: fixed 3D scene (hidden on narrow screens). Right two thirds: reading column. -->
-    <aside class="side-panel" aria-hidden="true">
-      <SideScene seed={Astro.url.pathname} />
-    </aside>
+    {
+      split && (
+        <aside class="side-panel" aria-hidden="true">
+          <SideScene seed={Astro.url.pathname} />
+        </aside>
+      )
+    }
     <div class="reading">
       <main>
         <slot />
