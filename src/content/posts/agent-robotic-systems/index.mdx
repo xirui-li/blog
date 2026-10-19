@@ -22,25 +22,25 @@ import Diagram from '../../../components/Diagram.astro';
 {/* The map for the rest of the post: agent (memory & belief update, optional learning module, policy/planner) and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
     What flows through the loop · When it flows · How the loop improves. */}
 <Figure
-  width={700}
+  width={900}
   title="The agent–environment loop."
   caption="The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Optionally, experience is used to update the policy."
 >
   <Diagram
-    width={700}
-    height={430}
+    width={900}
+    height={330}
     animate
     label="Diagram: on the left, the agent (memory and belief update, policy/planner, optional learning) sends action a_t to the environment on the right (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
     groups={[
-      { x: 15, y: 20, w: 380, h: 390, label: 'Agent', labelPos: 'bracket' },
-      { x: 480, y: 20, w: 205, h: 390, label: 'Environment', labelPos: 'bracket' },
+      { x: 15, y: 20, w: 560, h: 290, label: 'Agent', labelPos: 'bracket' },
+      { x: 660, y: 20, w: 225, h: 290, label: 'Environment', labelPos: 'bracket' },
     ]}
     nodes={[
-      { id: 'policy', x: 195, y: 60, w: 170, h: 60, label: 'Policy / Planner', kind: 'engine' },
-      { id: 'learn', x: 35, y: 180, w: 130, h: 64, label: 'Learning\n(optional)', kind: 'mesh' },
-      { id: 'memory', x: 195, y: 300, w: 170, h: 64, label: 'Memory &\nBelief Update', kind: 'source' },
-      { id: 'state', x: 500, y: 60, w: 165, h: 60, label: 'Hidden State s\nTransition T', kind: 'decoder' },
-      { id: 'obs', x: 500, y: 300, w: 165, h: 64, label: 'Observation Z\nReward R', kind: 'model' },
+      { id: 'policy', x: 340, y: 50, w: 180, h: 58, label: 'Policy / Planner', kind: 'engine' },
+      { id: 'learn', x: 60, y: 132, w: 170, h: 58, label: 'Learning (optional)', kind: 'mesh' },
+      { id: 'memory', x: 340, y: 215, w: 180, h: 60, label: 'Memory &\nBelief Update', kind: 'source' },
+      { id: 'state', x: 685, y: 50, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
+      { id: 'obs', x: 685, y: 215, w: 175, h: 60, label: 'Observation Z\nReward R', kind: 'model' },
     ]}
     edges={[
       { from: 'memory', to: 'policy', fromAt: 0.35, toAt: 0.35, label: 'mₜ / bₜ', labelAt: 0.35, step: 0 },
@@ -49,7 +49,7 @@ import Diagram from '../../../components/Diagram.astro';
       { from: 'state', to: 'obs', label: 'sₜ₊₁', step: 2 },
       { from: 'obs', to: 'memory', label: 'oₜ₊₁, rₜ₊₁', step: 3 },
       { from: 'memory', to: 'learn', fromSide: 'left', toSide: 'bottom', label: 'experience', labelAt: 0.3, step: 4 },
-      { from: 'learn', to: 'policy', fromSide: 'top', toSide: 'left', label: 'update policy', labelAt: 0.3, dashed: true, step: 5 },
+      { from: 'learn', to: 'policy', fromSide: 'top', toSide: 'left', label: 'update policy', labelAt: 0.55, dashed: true, step: 5 },
     ]}
   />
 </Figure>
