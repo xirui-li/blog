@@ -6,6 +6,9 @@ authors: ['Xirui Li']
 tags: ['meta']
 ---
 
+import Figure from '../../../components/Figure.astro';
+import Diagram from '../../../components/Diagram.astro';
+
 Welcome! This blog is built with [Astro](https://astro.build) and MDX, and deployed to GitHub Pages.
 
 ## What to expect
@@ -14,4 +17,35 @@ Notes on research, engineering, and things I am learning along the way.
 
 ## How posts are written
 
-Each post is a folder under `src/content/posts/` with an `index.mdx` file. Posts can mix Markdown with components such as videos, figures, and interactive widgets.
+Each post is a folder under `src/content/posts/` with an `index.mdx` file. Posts can mix Markdown with components such as videos, figures, diagrams, and interactive widgets.
+
+<Figure
+  wide
+  title="Publishing pipeline."
+  caption="A post is written locally as MDX and built into static pages by Astro. Every push to main triggers GitHub Actions, which builds the site again and deploys it to GitHub Pages."
+>
+  <Diagram
+    width={960}
+    height={215}
+    label="Diagram: index.mdx goes through Astro Build locally, then git push to GitHub Actions, which deploys to GitHub Pages."
+    groups={[
+      { x: 10, y: 40, w: 420, h: 165, label: 'Local' },
+      { x: 530, y: 40, w: 420, h: 165, label: 'GitHub' },
+    ]}
+    nodes={[
+      { id: 'post', x: 35, y: 72, w: 170, h: 60, label: 'Post\nindex.mdx', kind: 'source' },
+      { id: 'build', x: 235, y: 72, w: 170, h: 60, label: 'Astro Build', kind: 'engine' },
+      { id: 'ci', x: 555, y: 72, w: 170, h: 60, label: 'GitHub Actions', kind: 'model' },
+      { id: 'pages', x: 755, y: 72, w: 170, h: 60, label: 'GitHub Pages', kind: 'neutral', shape: 'pill' },
+      { x: 35, y: 152, w: 170, label: 'Markdown + MDX', kind: 'tag', shape: 'pill' },
+      { x: 235, y: 152, w: 170, label: 'npm run build', kind: 'tag', shape: 'pill' },
+      { x: 555, y: 152, w: 170, label: 'on push to main', kind: 'tag', shape: 'pill' },
+      { x: 755, y: 152, w: 170, label: 'xirui-li.github.io', kind: 'tag', shape: 'pill' },
+    ]}
+    edges={[
+      { from: 'post', to: 'build' },
+      { from: 'build', to: 'ci', label: 'git push' },
+      { from: 'ci', to: 'pages' },
+    ]}
+  />
+</Figure>

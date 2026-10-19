@@ -465,6 +465,41 @@ h3 {
   max-width: var(--wide);
 }
 
+.prose {
+  counter-reset: figure;
+}
+
+.figure.numbered {
+  counter-increment: figure;
+}
+
+.figure-counter::before {
+  content: counter(figure);
+}
+
+/* Paper-style caption: "Figure N  Title." in bold sans, description in serif. */
+.figure.numbered figcaption {
+  margin-top: 16px;
+  font: 14.5px/1.7 var(--serif);
+  color: var(--ink);
+}
+
+.figure-label {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.figure-number {
+  margin-right: 0.6em;
+}
+
+.figure-title {
+  font-weight: inherit;
+  margin-right: 0.35em;
+}
+
 .figure figcaption {
   margin-top: 12px;
   font-size: 12px;
@@ -550,6 +585,12 @@ h3 {
   }
   .figure figcaption {
     font-size: 11px;
+  }
+  .figure.numbered figcaption {
+    font-size: 13px;
+  }
+  .figure-label {
+    font-size: 13.5px;
   }
   .prose table {
     display: block;

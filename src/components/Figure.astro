@@ -1,20 +1,31 @@
 ---
-// Wraps any figure content (image, video, interactive widget) with a numbered-style caption.
+// Wraps any figure content (image, video, diagram, interactive widget) with a caption.
+// With `title`, the caption follows the paper style: "Figure N  Title. Caption…",
+// numbered automatically in page order (or set `number` explicitly).
 // Use `wide` to let the figure extend past the text column on large screens.
 interface Props {
   caption?: string;
+  title?: string;
+  number?: number | string;
   wide?: boolean;
   id?: string;
 }
 
-const { caption, wide = false, id } = Astro.props;
+const { caption, title, number, wide = false, id } = Astro.props;
+const numbered = Boolean(title || number);
 ---
 
-<figure class:list={['figure', { wide }]} id={id}>
+<figure class:list={['figure', { wide, numbered }]} id={id}>
   <slot />
   {
-    (caption || Astro.slots.has('caption')) && (
+    (caption || title || Astro.slots.has('caption')) && (
       <figcaption>
+        {numbered && (
+          <span class="figure-label">
+            <span class="figure-number">Figure {number ?? <span class="figure-counter" />}</span>
+            {title && <strong class="figure-title">{title}</strong>}
+          </span>
+        )}
         <slot name="caption">{caption}</slot>
       </figcaption>
     )

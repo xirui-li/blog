@@ -24,10 +24,11 @@ src/
 ├── content/posts/<slug>/
 │   ├── index.mdx              # the post; URL is /blog/posts/<slug>/
 │   └── *.astro / images       # components and assets used only by this post
-├── components/                # shared components: Figure, Video
+├── components/                # shared components: Figure, Video, Diagram
 ├── layouts/                   # Base (site chrome), Post (article header + TOC)
 ├── pages/                     # index (post list), posts/[slug] (post route)
 ├── lib/posts.ts               # getPosts(), withBase(), formatDate()
+├── lib/diagram.ts             # Diagram palette, node shapes, edge routing
 └── styles/global.css          # theme tokens (light/dark) and article typography
 public/
 └── videos/<slug>/             # video files, served as-is
@@ -68,6 +69,38 @@ ffmpeg -i in.mov -c:v libx264 -pix_fmt yuv420p -crf 26 -preset slow -movflags +f
 ```
 
 GitHub rejects files over 100 MB and Pages sites should stay under 1 GB. For larger collections, host the files elsewhere and pass absolute URLs, or track `public/videos/**` with Git LFS (the deploy workflow already checks out LFS files).
+
+### Figures and diagrams
+
+`<Figure title="Short title." caption="Longer description." wide>` gives a paper-style caption — "**Figure N  Short title.** Longer description." — numbered automatically in page order.
+
+`<Diagram>` draws box-and-arrow figures in the style of Meta research papers (SVG, no JavaScript):
+
+```mdx
+import Figure from '../../../components/Figure.astro';
+import Diagram from '../../../components/Diagram.astro';
+
+<Figure wide title="Pipeline." caption="What the reader should take away.">
+  <Diagram
+    width={960} height={200}
+    groups={[{ x: 10, y: 40, w: 940, h: 150, label: 'Stage 1' }]}
+    nodes={[
+      { id: 'a', x: 40, y: 80, w: 170, h: 60, label: 'Data\nSource', kind: 'source' },
+      { id: 'b', x: 300, y: 80, w: 170, h: 60, label: 'Model', kind: 'model' },
+    ]}
+    edges={[{ from: 'a', to: 'b', label: 'train' }]}
+  />
+</Figure>
+```
+
+- Coordinates are viewBox units; the SVG scales to the column (use `wide` for anything over ~700 units).
+- Node `kind` (color): `model` teal · `engine` yellow · `source` purple · `decoder` blue · `mesh` green · `splat` peach · `neutral` · `tag` peach pill · `dark` · `go` · `gray` · `plain`.
+- Node `shape`: `box` · `pill` · `trapezoid` · `tokens` (`count`) · `image` (`src`) · `text`.
+- Edges route automatically with rounded corners. Override with `fromSide`/`toSide`, `fromAt`/`toAt` (0–1 along the side), `mid`, or explicit `via` waypoints; add `label`, `labelAt`, `dashed`.
+- Groups: dashed boxes with a `top` label ("STAGE 1") or `labelPos: 'bracket'` ("[ GEOMETRY MODEL ]"); `variant: 'filled'` for a gray backdrop.
+- `legend={{ x, y, direction: 'row', items: [{ kind: 'model', label: 'Model Training' }] }}`.
+
+See the Diagrams section of `components-demo` for a full recreation of a paper figure.
 
 ### Interactive components
 

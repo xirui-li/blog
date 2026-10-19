@@ -1,0 +1,229 @@
+---
+// Box-and-arrow diagrams in the style of Meta research paper figures.
+// Coordinates are in viewBox units; the SVG scales to the figure width.
+// Wrap in <Figure title="…" caption="…" wide> for a numbered caption.
+import {
+  PALETTE,
+  nodeBox,
+  routeEdge,
+  tokenRects,
+  trapezoidPoints,
+  type DiagramEdge,
+  type DiagramGroup,
+  type DiagramNode,
+  type LegendItem,
+} from '../lib/diagram';
+import { withBase } from '../lib/posts';
+
+interface Props {
+  width: number;
+  height: number;
+  nodes: DiagramNode[];
+  edges?: DiagramEdge[];
+  groups?: DiagramGroup[];
+  legend?: { x: number; y: number; items: LegendItem[]; direction?: 'row' | 'column' };
+  /** Accessible description of the diagram. */
+  label?: string;
+}
+
+const { width, height, nodes, edges = [], groups = [], legend, label } = Astro.props;
+const byId = new Map(nodes.filter((n) => n.id).map((n) => [n.id!, n]));
+const routed = edges.map((e) => routeEdge(e, byId));
+
+const lines = (s = '') => s.split('\n');
+const LINE = 1.25; // line height in em
+
+// Column legends stack items; row legends advance by an estimated label width.
+let cursor = 0;
+const legendItems = (legend?.items ?? []).map((item) => {
+  const row = legend!.direction === 'row';
+  const pos = { x: legend!.x + (row ? cursor : 0), y: legend!.y + (row ? 0 : cursor) };
+  cursor += row ? 30 + item.label.length * 8 + 28 : 30;
+  return { ...item, ...pos };
+});
+---
+
+<svg
+  class="diagram"
+  viewBox={`0 0 ${width} ${height}`}
+  role="img"
+  aria-label={label}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {
+    groups.map((g) => (
+      <g class="group">
+        <rect
+          x={g.x}
+          y={g.y}
+          width={g.w}
+          height={g.h}
+          rx={g.variant === 'filled' ? 14 : 18}
+          class={g.variant === 'filled' ? 'group-filled' : 'group-dashed'}
+        />
+        {g.label && g.labelPos === 'bracket' && (
+          <text x={g.x + 24} y={g.y + g.h - 16} class="group-bracket">
+            [ {g.label} ]
+          </text>
+        )}
+        {g.label && g.labelPos !== 'bracket' && (
+          <text x={g.x + g.w / 2} y={g.y - 14} text-anchor="middle" class="group-top">
+            {g.label}
+          </text>
+        )}
+      </g>
+    ))
+  }
+
+  {
+    routed.map((r) => (
+      <g class="edge">
+        <path d={r.d} class:list={['edge-line', { dashed: r.dashed }]} />
+        {r.arrow && <path d={r.arrow} class="edge-line" />}
+        {r.label && (
+          <text x={r.label.x} y={r.label.y} text-anchor="middle" dominant-baseline="central" class="edge-label">
+            {r.label.text}
+          </text>
+        )}
+      </g>
+    ))
+  }
+
+  {
+    nodes.map((n) => {
+      const b = nodeBox(n);
+      const c = PALETTE[n.kind ?? (n.shape === 'tokens' ? 'plain' : 'model')];
+      const size = n.size ?? (n.kind === 'tag' || n.kind === 'dark' || n.kind === 'go' ? 14 : 16);
+      const ls = lines(n.label);
+      const textAttrs = {
+        'font-size': size,
+        'font-weight': n.weight ?? (n.shape === 'text' ? 400 : 450),
+        'font-style': n.italic ? 'italic' : undefined,
+        fill: n.color ?? (n.shape === 'text' ? '#1f1f1f' : c.text),
+      };
+      const label = (cx: number, cy: number, anchor = 'middle') => (
+        <text x={cx} y={cy} text-anchor={anchor} dominant-baseline="central" {...textAttrs}>
+          {ls.map((line, i) => (
+            <tspan x={cx} dy={i === 0 ? `${(-(ls.length - 1) * LINE) / 2}em` : `${LINE}em`}>
+              {line}
+            </tspan>
+          ))}
+        </text>
+      );
+
+      if (n.shape === 'text') return label(n.x, n.y, n.align ?? 'start');
+      if (n.shape === 'image')
+        return (
+          <image href={n.src && withBase(n.src)} x={b.x} y={b.y} width={b.w} height={b.h} preserveAspectRatio="xMidYMid meet" />
+        );
+      if (n.shape === 'tokens')
+        return (
+          <g>
+            {tokenRects(n).map((t) => (
+              <rect x={t.x} y={t.y} width={t.w} height={t.h} rx={5} fill={n.kind ? c.fill : '#e6e6e6'} stroke={n.kind ? c.stroke : '#9b9b9b'} stroke-width="1.5" />
+            ))}
+          </g>
+        );
+      return (
+        <g class="node">
+          {n.shape === 'trapezoid' ? (
+            <polygon points={trapezoidPoints(n)} fill={c.fill} stroke={c.stroke} stroke-width="2.5" stroke-linejoin="round" />
+          ) : (
+            <rect
+              x={b.x}
+              y={b.y}
+              width={b.w}
+              height={b.h}
+              rx={n.shape === 'pill' ? b.h / 2 : 9}
+              fill={c.fill}
+              stroke={c.stroke}
+              stroke-width="2.5"
+            />
+          )}
+          {n.label && label(b.x + b.w / 2, b.y + b.h / 2)}
+        </g>
+      );
+    })
+  }
+
+  {
+    legendItems.map((item) => (
+      <g class="legend">
+        {item.kind === 'group' ? (
+          <rect x={item.x} y={item.y} width="20" height="20" rx="4" class="group-dashed" />
+        ) : (
+          <rect x={item.x} y={item.y} width="20" height="20" rx="4" fill={PALETTE[item.kind].fill} stroke={PALETTE[item.kind].stroke} stroke-width="2" />
+        )}
+        <text x={item.x + 30} y={item.y + 10} dominant-baseline="central" class="legend-label">
+          {item.label}
+        </text>
+      </g>
+    ))
+  }
+</svg>
+
+<style>
+  .diagram {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--sans);
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  .edge-line {
+    fill: none;
+    stroke: #9ea8b3;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .edge-line.dashed {
+    stroke-dasharray: 6 6;
+  }
+
+  /* White halo breaks the line behind the label, as in the paper figures. */
+  .edge-label {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    fill: #1f1f1f;
+    stroke: #fff;
+    stroke-width: 10px;
+    stroke-linejoin: round;
+    paint-order: stroke;
+  }
+
+  .group-dashed {
+    fill: none;
+    stroke: #b4b8be;
+    stroke-width: 2;
+    stroke-dasharray: 5 5;
+  }
+
+  .group-filled {
+    fill: #f2f2f2;
+  }
+
+  .group-top {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: #1f1f1f;
+  }
+
+  .group-bracket {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    fill: #1f1f1f;
+  }
+
+  .legend-label {
+    font-size: 15px;
+    fill: #1f1f1f;
+  }
+</style>

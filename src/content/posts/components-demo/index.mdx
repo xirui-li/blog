@@ -8,6 +8,7 @@ draft: true
 import Figure from '../../../components/Figure.astro';
 import Video from '../../../components/Video.astro';
 import Counter from './Counter.astro';
+import Diagram from '../../../components/Diagram.astro';
 
 This post is a living reference for what can go inside an `.mdx` post. It is marked `draft: true`, so it only shows up in the dev server.
 
@@ -50,6 +51,85 @@ Any `.astro` component with a `<script>` works; the script is bundled and loaded
 </Figure>
 
 To use a UI framework (React, Svelte, …) instead, add its integration with `npx astro add react` and hydrate the component with a directive such as `client:visible`.
+
+## Diagrams
+
+`<Diagram>` draws box-and-arrow figures in the style of Meta research papers. Place nodes by coordinates (viewBox units); edges route themselves with rounded corners. Wrap it in `<Figure title="…">` for a numbered, paper-style caption.
+
+Node `kind` sets the color: `model` (teal), `engine` (yellow), `source` (purple), `decoder` (blue), `mesh` (green), `splat` (peach), `neutral`, `tag` (peach pill), `dark`, `go`, `gray`, `plain`. Node `shape`: `box`, `pill`, `trapezoid`, `tokens`, `image`, `text`.
+
+<Figure
+  wide
+  title="Training paradigm (recreated)."
+  caption="A multi-stage pipeline incrementally exposing the model to increasingly complex data and modalities. Recreated with <Diagram> to show the style."
+>
+  <Diagram
+    width={1100}
+    height={345}
+    nodes={[
+      { id: 'pre', x: 20, y: 20, w: 170, h: 62, label: 'Synthetic\nPre-training', kind: 'model' },
+      { id: 'mid', x: 250, y: 20, w: 170, h: 62, label: 'Semi-Synthetic\nMid-training', kind: 'model' },
+      { id: 'sft', x: 480, y: 20, w: 170, h: 62, label: 'Real-World SFT\nPost-Training', kind: 'model' },
+      { id: 'pref', x: 710, y: 20, w: 170, h: 62, label: 'Preference\nOptimization', kind: 'model' },
+      { id: 'final', x: 935, y: 15, w: 150, h: 72, label: 'Final Model', kind: 'neutral', shape: 'pill' },
+      { id: 'render', x: 20, y: 140, w: 170, h: 44, label: 'Render Engine', kind: 'engine' },
+      { id: 'paste', x: 250, y: 140, w: 170, h: 44, label: 'Render Paste', kind: 'engine' },
+      { id: 'mitl', x: 480, y: 140, w: 170, h: 44, label: 'MITL Data Engine', kind: 'engine' },
+      { id: 'meshes', x: 20, y: 236, w: 170, h: 60, label: 'Synthetic 3D\nMeshes', kind: 'source' },
+      { id: 'images', x: 250, y: 236, w: 170, h: 60, label: 'Natural Images\n(e.g. SA-1B)', kind: 'source' },
+    ]}
+    edges={[
+      { from: 'pre', to: 'mid' },
+      { from: 'mid', to: 'sft' },
+      { from: 'sft', to: 'pref' },
+      { from: 'pref', to: 'final' },
+      { from: 'render', to: 'pre', label: 'ISO - 3DO' },
+      { from: 'paste', to: 'mid', label: 'RP - 3DO' },
+      { from: 'mitl', to: 'sft', label: 'MITL/ART - 3DO' },
+      { from: 'meshes', to: 'render' },
+      { from: 'images', to: 'paste' },
+      { from: 'meshes', to: 'paste', fromSide: 'right', toSide: 'left' },
+      { from: 'images', to: 'mitl', fromSide: 'right', toSide: 'left' },
+      { from: 'mitl', to: 'pref', fromSide: 'right', toSide: 'bottom', label: 'MITL PREFERENCE', labelAt: 0.4 },
+      { from: 'final', to: 'mitl', fromSide: 'bottom', toSide: 'bottom', via: [[1010, 262], [565, 262]], label: 'MODEL-IN-THE-LOOP', labelAt: 0.55 },
+    ]}
+    legend={{ x: 640, y: 310, direction: 'row', items: [
+      { kind: 'model', label: 'Model Training' },
+      { kind: 'engine', label: 'Data Engine' },
+      { kind: 'source', label: 'Data Source' },
+    ] }}
+  />
+</Figure>
+
+Groups (`dashed` with a `top` label such as "STAGE 1", or a `bracket` label such as "[ GEOMETRY MODEL ]"), trapezoid decoders, and token rows:
+
+<Figure wide title="Building blocks." caption="Dashed groups, tokens, trapezoid decoders, tags, and text labels.">
+  <Diagram
+    width={960}
+    height={250}
+    groups={[
+      { x: 10, y: 40, w: 580, h: 200, label: 'Geometry model', labelPos: 'bracket' },
+      { x: 640, y: 40, w: 310, h: 200, label: 'Stage 2' },
+    ]}
+    nodes={[
+      { x: 40, y: 82, label: 'Shape Tokens', shape: 'text' },
+      { id: 'tok', x: 160, y: 70, shape: 'tokens', count: 3 },
+      { id: 'mot', x: 290, y: 50, w: 160, h: 64, label: 'Mixture of\nTransformers', kind: 'engine' },
+      { id: 'dec', x: 490, y: 42, w: 80, h: 80, label: 'Shape', kind: 'source', shape: 'trapezoid' },
+      { id: 'go', x: 660, y: 70, w: 110, h: 40, label: 'Sampler', kind: 'go' },
+      { id: 'sm', x: 805, y: 62, w: 125, h: 56, label: 'Modeling', kind: 'model' },
+      { x: 812, y: 132, w: 110, label: '3D Artists', kind: 'tag', shape: 'pill' },
+      { x: 660, y: 180, w: 110, h: 32, label: '3D Shape', kind: 'dark', shape: 'pill' },
+      { x: 40, y: 170, label: 'Point Map (Optional)', shape: 'text', italic: true, size: 14, color: '#777' },
+    ]}
+    edges={[
+      { from: 'tok', to: 'mot' },
+      { from: 'mot', to: 'dec' },
+      { from: 'go', to: 'sm' },
+      { from: [190, 170], to: 'mot', fromSide: 'right', toSide: 'bottom', toAt: 0.3, dashed: true },
+    ]}
+  />
+</Figure>
 
 ## Figures and images
 
