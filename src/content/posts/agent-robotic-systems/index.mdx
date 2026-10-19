@@ -52,18 +52,21 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## How the Loop Used to Be
 
-{/* The same loop, instantiated end to end: one network maps observations to low-level actions at a fixed rate; memory is little more than the current frames; no explicit record of what an action achieved. Keep it short — two representative works per family. */}
+{/* A short review, no subsections. Four paragraphs and one figure.
 
-### Vision-Language-Action models
+    1. The same loop, instantiated end to end: one network takes over the whole agent side — observations in, actions out, at a fixed rate.
 
-{/* π0.5 (Physical Intelligence, 2025): VLA co-trained on heterogeneous data for open-world generalization; predicts a high-level subtask in language, then low-level actions with an action expert.
-    MolmoAct 2 (Ai2, May 2026, arXiv 2605.02881): open action reasoning model on the Molmo2-ER backbone with an action expert for continuous control; MolmoAct2-Think adds adaptive-depth reasoning.
-    Where they sit on the loop: o = images + language (+ proprio); m ≈ recent observations; π = one forward pass (some reasoning tokens); a = action chunks at a fixed rate. */}
+    2. π0.5 [1], described through the loop: o = images + language instruction + proprioception; π first predicts a high-level subtask in language, then an action expert outputs low-level actions; a = action chunks at a fixed rate; generalization comes from co-training on heterogeneous data.
 
-### World Action Models
+    3. MolmoAct 2 [2], focusing on how it differs: it reasons before acting (spatial / embodied reasoning on the Molmo2-ER backbone), and MolmoAct2-Think adapts how deeply it reasons. Part of the thinking becomes explicit, but it still happens inside one forward pass.
 
-{/* Policies built on video-generation backbones that predict future observations and actions together. TODO: pick two representative works.
-    Where they sit on the loop: the policy carries an internal model of T and Z — it imagines the next observation before acting. */}
+    4. What both share, and what the loop is missing (sets up the next three sections):
+       - one step is still one control tick, not "one action with an outcome";
+       - memory is little more than the latest frames;
+       - there is no explicit channel for what an action achieved — failure shows up only indirectly in the next image;
+       - improving means retraining.
+
+    Figure idea: the "collapsed" loop — Figure 1's layout with Memory and Policy merged into one "π0.5 / MolmoAct 2" box, Learning greyed out as offline training, and the action edge labeled "fixed-rate action chunks". */}
 
 ## What Flows Through the Loop
 
