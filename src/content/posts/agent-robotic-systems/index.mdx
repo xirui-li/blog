@@ -11,11 +11,7 @@ draft: true          # remove when ready to publish
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
 
-{/* Opening: the one-paragraph thesis. End-to-end policies and agent systems are not two camps but two ends of a spectrum; every design dimension of the loop can sit anywhere along it. */}
-
-## From End-to-End Policies to Agent Systems
-
-{/* Interactive demo: the same task ("put the cup in the basket") handled by an end-to-end policy and by a ReAct agent (Thought → Action → Observation). A "drop the cup" button injects a failure: the agent sees it in its observation and retries; the policy just keeps emitting actions. */}
+{/* Opening: the one-paragraph thesis. The agent–environment loop fits every robot policy; what separates end-to-end models from agent systems is how each part of the loop is instantiated. */}
 
 ## The Agent–Environment Loop
 
@@ -53,6 +49,21 @@ import Diagram from '../../../components/Diagram.astro';
     ]}
   />
 </Figure>
+
+## How the Loop Used to Be
+
+{/* The same loop, instantiated end to end: one network maps observations to low-level actions at a fixed rate; memory is little more than the current frames; no explicit record of what an action achieved. Keep it short — two representative works per family. */}
+
+### Vision-Language-Action models
+
+{/* π0.5 (Physical Intelligence, 2025): VLA co-trained on heterogeneous data for open-world generalization; predicts a high-level subtask in language, then low-level actions with an action expert.
+    MolmoAct 2 (Ai2, May 2026, arXiv 2605.02881): open action reasoning model on the Molmo2-ER backbone with an action expert for continuous control; MolmoAct2-Think adds adaptive-depth reasoning.
+    Where they sit on the loop: o = images + language (+ proprio); m ≈ recent observations; π = one forward pass (some reasoning tokens); a = action chunks at a fixed rate. */}
+
+### World Action Models
+
+{/* Policies built on video-generation backbones that predict future observations and actions together. TODO: pick two representative works.
+    Where they sit on the loop: the policy carries an internal model of T and Z — it imagines the next observation before acting. */}
 
 ## What Flows Through the Loop
 
