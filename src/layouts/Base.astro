@@ -5,6 +5,7 @@ import '@fontsource/libre-baskerville/400-italic.css';
 import '../styles/global.css';
 import { withBase } from '../lib/posts';
 import { SITE } from '../site.config';
+import SideScene from '../components/SideScene.astro';
 
 interface Props {
   title: string;
@@ -46,12 +47,21 @@ const isHome = Astro.url.pathname === withBase('/');
         </nav>
       </div>
     </header>
-    <main>
-      <slot />
-    </main>
-    <footer class="site-footer">
-      <span>© {new Date().getFullYear()} {SITE.author}</span>
-      <a href={SITE.sourceUrl}>Source</a>
-    </footer>
+    <!-- Left third: fixed side panel (hidden on narrow screens). Right two thirds: reading column. -->
+    <aside class="side-panel">
+      <div class="side-inner">
+        <slot name="aside" />
+      </div>
+      <SideScene seed={Astro.url.pathname} />
+    </aside>
+    <div class="reading">
+      <main>
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <span>© {new Date().getFullYear()} {SITE.author}</span>
+        <a href={SITE.sourceUrl}>Source</a>
+      </footer>
+    </div>
   </body>
 </html>

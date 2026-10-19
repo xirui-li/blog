@@ -9,6 +9,8 @@ export default defineConfig({
   base: '/blog',
   trailingSlash: 'always',
   integrations: [mdx()],
+  // three.js (side-panel scene) is one large lazily loaded chunk, by design.
+  vite: { build: { chunkSizeWarningLimit: 800 } },
   markdown: {
     shikiConfig: {
       theme: 'github-light',

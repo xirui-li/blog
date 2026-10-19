@@ -69,6 +69,158 @@ main {
   padding: 0 40px 5rem;
 }
 
+/* ---------- split layout (after lego-anything.com) ----------
+   The side panel is fixed to the left third of the viewport; the reading
+   column is centered within the right two thirds. */
+
+.side-panel {
+  position: fixed;
+  top: var(--nav-height);
+  bottom: 0;
+  left: 0;
+  width: 33.333333%;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 40px 24px;
+  border-right: 1px solid #efefeb;
+}
+
+.side-inner {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 300px;
+  max-height: 55%;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+
+/* The 3D scene fills whatever height the text leaves. */
+.side-scene {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0 -40px;
+}
+
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity 0.28s ease;
+}
+
+.scene-canvas.is-fading {
+  opacity: 0;
+}
+
+.scene-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.side-scene:not(.is-ready) .scene-canvas {
+  opacity: 0;
+}
+
+.reading {
+  width: 66.666667%;
+  margin-left: 33.333333%;
+}
+
+.narrow-only {
+  display: none;
+}
+
+.side-title {
+  margin: 0 0 18px;
+  font: 400 30px/1.25 var(--serif);
+  letter-spacing: -0.8px;
+  color: var(--ink);
+}
+
+.side-text {
+  margin: 0 0 26px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.side-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.side-button:hover {
+  border-color: #7d8477;
+  background: var(--surface);
+}
+
+.side-back {
+  display: inline-block;
+  margin-bottom: 36px;
+  font-size: 12px;
+  color: #666963;
+  text-decoration: none;
+}
+
+.side-back:hover {
+  color: var(--ink);
+}
+
+.side-label {
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.side-toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+
+.side-toc a {
+  display: block;
+  margin-left: -1px;
+  padding: 6px 0 6px 16px;
+  border-left: 1px solid transparent;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #666963;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.side-toc a:hover {
+  color: var(--ink);
+}
+
+.side-toc a[aria-current='location'] {
+  color: var(--ink);
+  border-left-color: var(--ink);
+}
+
+.list-heading {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 4.5rem 0 1.5rem;
+  font-size: 11px;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* ---------- site chrome ---------- */
 
 .site-header {
@@ -302,6 +454,7 @@ h3 {
 }
 
 .toc {
+  display: none;
   margin-bottom: 3rem;
   padding: 18px 0;
   border-top: 1px solid var(--line);
@@ -518,6 +671,20 @@ h3 {
 /* ---------- responsive ---------- */
 
 @media (max-width: 900px) {
+  .side-panel,
+  .wide-only {
+    display: none;
+  }
+  .reading {
+    width: 100%;
+    margin-left: 0;
+  }
+  .narrow-only {
+    display: block;
+  }
+  .toc {
+    display: block;
+  }
   .nav-wrap {
     width: calc(100% - 48px);
   }

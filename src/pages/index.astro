@@ -7,11 +7,21 @@ const posts = await getPosts();
 ---
 
 <Base title={SITE.name}>
-  <section class="intro">
+  <Fragment slot="aside">
+    <p class="eyebrow">{SITE.author}</p>
+    <p class="side-title">{SITE.name}</p>
+    <p class="side-text">{SITE.description}</p>
+    <a class="side-button" href={SITE.sourceUrl}>GitHub</a>
+  </Fragment>
+
+  <!-- On wide screens the intro lives in the side panel. -->
+  <section class="intro narrow-only">
     <p class="eyebrow">{SITE.author}</p>
     <h1>{SITE.name}</h1>
     <p>{SITE.description}</p>
   </section>
+
+  <p class="list-heading wide-only">All posts</p>
 
   <ul class="post-list">
     {

@@ -1,0 +1,42 @@
+---
+// Host for the side panel's 3D scene. three.js is loaded only on wide screens,
+// where the side panel is visible. `seed` picks the page's first model.
+interface Props {
+  seed: string;
+}
+
+const { seed } = Astro.props;
+---
+
+<div class="side-scene" data-seed={seed} aria-hidden="true"></div>
+
+<script>
+  const host = document.querySelector<HTMLElement>('.side-scene');
+  const wide = matchMedia('(min-width: 901px)');
+  let unmount: (() => void) | undefined;
+  let loading = false;
+
+  async function start() {
+    if (!host || !wide.matches || unmount || loading) return;
+    loading = true;
+    try {
+      const { mount } = await import('../lib/scene3d');
+      // Each h2 section of a post gets its own model.
+      const sections = [...document.querySelectorAll<HTMLElement>('.prose > h2')];
+      if (wide.matches) unmount = mount(host, { seed: host.dataset.seed ?? '', sections });
+    } catch {
+      // No WebGL: the panel simply stays without a scene.
+    } finally {
+      loading = false;
+    }
+  }
+
+  wide.addEventListener('change', () => {
+    if (wide.matches) start();
+    else {
+      unmount?.();
+      unmount = undefined;
+    }
+  });
+  start();
+</script>
