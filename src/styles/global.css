@@ -81,7 +81,6 @@ main {
   left: 0;
   width: 33.333333%;
   display: flex;
-  border-right: 1px solid #efefeb;
 }
 
 .side-scene {
