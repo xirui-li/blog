@@ -19,7 +19,7 @@ const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label')
     <header class="post-header">
       {draft && <p class="draft-badge">Draft — not published</p>}
       <p class="eyebrow">
-        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        Date: <time datetime={date.toISOString()}>{formatDate(date)}</time>
         {updated && <span> · Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time></span>}
       </p>
       <h1>{title}</h1>

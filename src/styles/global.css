@@ -230,7 +230,7 @@ h3 {
   line-height: 1.8;
 }
 
-.post-list time {
+.post-list .post-date {
   font-size: 12px;
   letter-spacing: 0.72px;
   color: var(--muted);
