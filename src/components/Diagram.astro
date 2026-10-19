@@ -90,6 +90,7 @@ const legendItems = (legend?.items ?? []).map((item) => {
 <svg
   class="diagram"
   viewBox={`0 0 ${width} ${height}`}
+  style={`max-width: ${width}px`}
   role="img"
   aria-label={label}
   xmlns="http://www.w3.org/2000/svg"
@@ -235,8 +236,10 @@ const legendItems = (legend?.items ?? []).map((item) => {
 </svg>
 
 <style>
+  /* Never scaled up: at most 1:1 with its viewBox, centered. */
   .diagram {
     display: block;
+    margin-inline: auto;
     width: 100%;
     height: auto;
     font-family: var(--sans);

@@ -73,7 +73,7 @@ GitHub rejects files over 100 MB and Pages sites should stay under 1 GB. For lar
 
 ### Figures and diagrams
 
-`<Figure title="Short title." caption="Longer description." wide>` gives a paper-style caption — "**Figure N  Short title.** Longer description." — numbered automatically in page order.
+`<Figure title="Short title." caption="Longer description." width={700}>` gives a paper-style caption — "**Figure N  Short title.** Longer description." — numbered automatically in page order.
 
 `<Diagram>` draws box-and-arrow figures in the style of Meta research papers (SVG, no JavaScript):
 
@@ -81,7 +81,7 @@ GitHub rejects files over 100 MB and Pages sites should stay under 1 GB. For lar
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
 
-<Figure wide title="Pipeline." caption="What the reader should take away.">
+<Figure width={960} title="Pipeline." caption="What the reader should take away.">
   <Diagram
     width={960} height={200}
     groups={[{ x: 10, y: 40, w: 940, h: 150, label: 'Stage 1' }]}
@@ -94,7 +94,7 @@ import Diagram from '../../../components/Diagram.astro';
 </Figure>
 ```
 
-- Coordinates are viewBox units; the SVG scales to the column (use `wide` for anything over ~700 units).
+- Coordinates are viewBox units. A diagram renders at most 1:1 (node text ≈ body text) and is centered; pass the same number as `<Figure width={…}>` so the caption matches the figure's width.
 - Node `kind` (color): `model` teal · `engine` yellow · `source` purple · `decoder` blue · `mesh` green · `splat` peach · `neutral` · `tag` peach pill · `dark` · `go` · `gray` · `plain`.
 - Node `shape`: `box` · `pill` · `trapezoid` · `tokens` (`count`) · `image` (`src`) · `text`.
 - Edges route automatically with rounded corners. Override with `fromSide`/`toSide`, `fromAt`/`toAt` (0–1 along the side), `mid`, or explicit `via` waypoints; add `label`, `labelAt`, `dashed`.

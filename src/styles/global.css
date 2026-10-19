@@ -129,6 +129,12 @@ main {
   max-width: 48rem;
 }
 
+/* Figures are centered in the reading column. */
+.is-split .prose > .figure {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .is-split .nav-wrap {
   width: calc(100% - 128px);
 }

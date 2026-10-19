@@ -2,20 +2,23 @@
 // Wraps any figure content (image, video, diagram, interactive widget) with a caption.
 // With `title`, the caption follows the paper style: "Figure N  Title. Caption…",
 // numbered automatically in page order (or set `number` explicitly).
-// Use `wide` to let the figure extend past the text column on large screens.
+// Use `wide` to let the figure extend past the text column on large screens,
+// or `width` (px) to cap figure and caption at a size — e.g. a Diagram's
+// viewBox width, so it renders 1:1 with text the size of the body copy.
 interface Props {
   caption?: string;
   title?: string;
   number?: number | string;
   wide?: boolean;
+  width?: number;
   id?: string;
 }
 
-const { caption, title, number, wide = false, id } = Astro.props;
+const { caption, title, number, wide = false, width, id } = Astro.props;
 const numbered = Boolean(title || number);
 ---
 
-<figure class:list={['figure', { wide, numbered }]} id={id}>
+<figure class:list={['figure', { wide, numbered }]} id={id} style={width ? `max-width: ${width}px` : undefined}>
   <slot />
   {
     (caption || title || Astro.slots.has('caption')) && (

@@ -22,6 +22,7 @@ import Diagram from '../../../components/Diagram.astro';
 {/* The map for the rest of the post: agent (memory & belief update, optional learning module, policy/planner) and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
     What flows through the loop · When it flows · How the loop improves. */}
 <Figure
+  width={700}
   title="The agent–environment loop."
   caption="The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Optionally, experience is used to update the policy."
 >
