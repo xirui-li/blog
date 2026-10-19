@@ -19,7 +19,7 @@
   --measure: 42rem;
   --wide: 60rem;
   --nav-height: 76px;
-  color-scheme: light;
+  color-scheme: only light;
 }
 
 *,
