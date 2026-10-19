@@ -16,7 +16,7 @@ import Diagram from '../../../components/Diagram.astro';
 ## From End-to-End Policies to Agent Systems
 
 {/* Interactive demo: the same task ("put the cup in the basket") handled by an end-to-end policy and by a ReAct agent (Thought → Action → Observation). A "drop the cup" button injects a failure: the agent sees it in its observation and retries; the policy just keeps emitting actions. */}
-{/* Note: Shaoxiong's post opens with "From Policies to Systems" — consider a distinct title. */}
+{/* Reference Shaoxiong's "Beyond Tool Calling: Understanding Execution Models for Agentic Robotics" (its first section, "From Policies to Systems", makes a related point). Link once it is published: https://embodiedruntime.github.io/blog/posts/beyond-tool-calling/ */}
 
 ## The Agent–Environment Loop
 
@@ -69,6 +69,7 @@ import Diagram from '../../../components/Diagram.astro';
     - Commitment horizon: single step → action chunking → skills (a skill is a nested inner loop inside a_t).
     - Sync vs async: does the policy wait while a_t executes, or keep running? (chunked async inference ↔ agents monitoring background skills)
     - Interruption & recovery: issuing a new a_t before the last one finishes.
+    - For execution-model details (control flow, state, the core execution loop), point to Shaoxiong's "Beyond Tool Calling".
     Figure idea: 2×3 table — horizon (step / chunk / skill) × sync / async. */}
 
 ## How the Loop Improves
