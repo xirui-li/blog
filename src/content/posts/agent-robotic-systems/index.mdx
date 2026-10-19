@@ -11,19 +11,18 @@ draft: true          # remove when ready to publish
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
 
-{/* Opening: the one-paragraph thesis of the post. What changes when the "user" of a robot is an agent rather than a programmer? */}
+{/* Opening: the one-paragraph thesis. End-to-end policies and agent systems are not two camps but two ends of a spectrum; every design dimension of the loop can sit anywhere along it. */}
 
-## Introduction
+## From End-to-End Policies to Agent Systems
 
-{/* Motivation and scope. What do you mean by an agent robotic system? What is this post arguing? */}
+{/* Interactive demo: the same task ("put the cup in the basket") handled by an end-to-end policy and by a ReAct agent (Thought → Action → Observation). A "drop the cup" button injects a failure: the agent sees it in its observation and retries; the policy just keeps emitting actions. */}
+{/* Note: Shaoxiong's post opens with "From Policies to Systems" — consider a distinct title. */}
 
-## From tools to agents
+## The Agent–Environment Loop
 
-{/* LLM tool calling vs. embodied agents: actions take time, can fail halfway, and change the world. */}
-
-## System architecture
-
-{/* Walk through the figure: task → agent → skills → controller → robot, with observations closing the loop. */}
+{/* The map for the rest of the post: agent (memory & belief update, optional learning module, policy/planner) and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
+    What flows through the loop · When it flows · How the loop improves. */}
+{/* TODO: replace this figure with the loop diagram, annotated with where each concept lives. */}
 
 <Figure
   wide
@@ -55,18 +54,31 @@ import Diagram from '../../../components/Diagram.astro';
   />
 </Figure>
 
-## Perception and grounding
+## What Flows Through the Loop
 
-{/* How the agent connects language to objects, places, and the robot's own state. */}
+{/* Representation. For each, contrast end-to-end ↔ agent:
+    - Observation space — the o_{t+1} edge; perception/grounding in Z (or as a tool the agent calls).
+    - Memory & belief — the memory node; world representation; "record executed actions" edge.
+    - Context construction — the b_t edge: what part of memory reaches the policy.
+    - Action space — the a_t edge: joint commands → action chunks → skill calls.
+    - Skill design — interface (name, args, description), granularity, pre/postconditions, what a skill returns (its result is an observation), learned policies as skills. */}
 
-## Planning and skills
+## When It Flows
 
-{/* Granularity of skills, how they are described to the agent, and who decides what. */}
+{/* Time structure of the loop (not a single place on the diagram):
+    - Commitment horizon: single step → action chunking → skills (a skill is a nested inner loop inside a_t).
+    - Sync vs async: does the policy wait while a_t executes, or keep running? (chunked async inference ↔ agents monitoring background skills)
+    - Interruption & recovery: issuing a new a_t before the last one finishes.
+    Figure idea: 2×3 table — horizon (step / chunk / skill) × sync / async. */}
 
-## Execution, feedback, and recovery
+## How the Loop Improves
 
-{/* Long-running actions, cancellation, failure detection, retries, and safety. */}
+{/* Two learning paths on the diagram:
+    - Weights: learning module + "interaction experience" / "improve policy" edges (RL, fine-tuning).
+    - Context: in-context learning — experience → memory → b_t → policy, no weight update (demos, past episodes, reflections; in-context imitation on the policy side).
+    - Structure: growing or rewriting the skill library.
+    Also feedback: who decides success (R, r_{t+1}). */}
 
-## Open questions
+## Open Questions
 
 {/* What is still unsolved? Where is the field heading? */}
