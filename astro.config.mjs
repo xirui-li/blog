@@ -7,7 +7,7 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
   site: 'https://xirui-li.github.io',
   base: '/blog',
-  trailingSlash: 'always',
+  trailingSlash: 'ignore',
   integrations: [mdx()],
   // three.js (side-panel scene) is one large lazily loaded chunk, by design.
   vite: { build: { chunkSizeWarningLimit: 800 } },
