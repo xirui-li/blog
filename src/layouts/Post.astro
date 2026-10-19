@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 import Base from './Base.astro';
-import { formatDate, withBase } from '../lib/posts';
+import { formatDate } from '../lib/posts';
 
 interface Props {
   post: CollectionEntry<'posts'>;
@@ -15,24 +15,6 @@ const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label')
 ---
 
 <Base title={title} description={description} ogType="article">
-  <Fragment slot="aside">
-    <a class="side-back" href={withBase('/')}>← All posts</a>
-    {
-      toc.length > 0 && (
-        <nav class="side-toc" aria-label="Contents">
-          <p class="side-label">Contents</p>
-          <ol>
-            {toc.map((h) => (
-              <li>
-                <a href={`#${h.slug}`}>{h.text}</a>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      )
-    }
-  </Fragment>
-
   <article class="post">
     <header class="post-header">
       {draft && <p class="draft-badge">Draft — not published</p>}
@@ -66,21 +48,3 @@ const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label')
   </article>
 </Base>
 
-<script>
-  // Highlight the section being read in the side panel's contents list.
-  const links = [...document.querySelectorAll<HTMLAnchorElement>('.side-toc a')];
-  const targets = links.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))));
-  let frame = 0;
-  const update = () => {
-    frame = 0;
-    let current = 0;
-    targets.forEach((t, i) => {
-      if (t && t.getBoundingClientRect().top < window.innerHeight * 0.3) current = i;
-    });
-    links.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
-  };
-  if (links.length) {
-    update();
-    addEventListener('scroll', () => (frame ||= requestAnimationFrame(update)), { passive: true });
-  }
-</script>
