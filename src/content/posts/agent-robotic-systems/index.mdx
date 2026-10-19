@@ -21,34 +21,34 @@ import Diagram from '../../../components/Diagram.astro';
 
 {/* The map for the rest of the post: agent (memory & belief update, optional learning module, policy/planner) and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
     What flows through the loop · When it flows · How the loop improves. */}
-{/* TODO: replace this figure with the loop diagram, annotated with where each concept lives. */}
-
 <Figure
-  title="Agent robotic system."
-  caption="An agent turns a task instruction into calls to a skill library; skills drive real-time controllers on the robot. Observations from the robot's sensors flow back to the agent, closing the loop."
+  title="The agent–environment loop."
+  caption="The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Optionally, experience is used to update the policy."
 >
   <Diagram
-    width={1000}
-    height={290}
+    width={700}
+    height={515}
     animate
-    label="Diagram: Task Instruction to Agent (LLM / VLM) to Skill Library to Controller to Robot; Robot sensing feeds Observations, which feed back to the Agent."
+    label="Diagram: the agent (memory and belief update, policy/planner, optional learning) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
+    groups={[
+      { x: 20, y: 20, w: 660, h: 260, label: 'Agent', labelPos: 'bracket' },
+      { x: 20, y: 335, w: 660, h: 165, label: 'Environment', labelPos: 'bracket' },
+    ]}
     nodes={[
-      { id: 'task', x: 20, y: 50, w: 140, h: 60, label: 'Task\nInstruction', kind: 'source' },
-      { id: 'agent', x: 220, y: 50, w: 170, h: 60, label: 'Agent\n(LLM / VLM)', kind: 'engine' },
-      { id: 'skills', x: 450, y: 50, w: 160, h: 60, label: 'Skill Library', kind: 'model' },
-      { id: 'ctrl', x: 670, y: 42, w: 130, h: 76, label: 'Controller', kind: 'decoder', shape: 'trapezoid' },
-      { id: 'robot', x: 850, y: 47, w: 130, h: 66, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { x: 455, y: 126, w: 150, label: 'Tool Calls', kind: 'tag', shape: 'pill' },
-      { x: 660, y: 126, w: 150, label: 'Real-time Loop', kind: 'tag', shape: 'pill' },
-      { id: 'obs', x: 450, y: 212, w: 160, h: 56, label: 'Observations', kind: 'source' },
+      { id: 'learn', x: 245, y: 45, w: 210, h: 54, label: 'Learning (optional)', kind: 'mesh' },
+      { id: 'memory', x: 60, y: 160, w: 210, h: 64, label: 'Memory &\nBelief Update', kind: 'source' },
+      { id: 'policy', x: 430, y: 160, w: 210, h: 64, label: 'Policy / Planner', kind: 'engine' },
+      { id: 'state', x: 430, y: 365, w: 210, h: 64, label: 'Hidden State s\nTransition T', kind: 'decoder' },
+      { id: 'obs', x: 60, y: 365, w: 210, h: 64, label: 'Observation Z\nReward R', kind: 'model' },
     ]}
     edges={[
-      { from: 'task', to: 'agent', step: 0 },
-      { from: 'agent', to: 'skills', step: 1 },
-      { from: 'skills', to: 'ctrl', step: 2 },
-      { from: 'ctrl', to: 'robot', step: 3 },
-      { from: 'robot', to: 'obs', fromSide: 'bottom', toSide: 'right', label: 'SENSING', labelAt: 0.3, step: 4 },
-      { from: 'obs', to: 'agent', fromSide: 'left', toSide: 'bottom', label: 'FEEDBACK', labelAt: 0.35, step: 5 },
+      { from: 'memory', to: 'policy', fromAt: 0.3, toAt: 0.3, label: 'mₜ / bₜ', step: 0 },
+      { from: 'policy', to: 'state', label: 'action aₜ', step: 1 },
+      { from: 'policy', to: 'memory', fromAt: 0.75, toAt: 0.75, label: 'executed aₜ', step: 1 },
+      { from: 'state', to: 'obs', label: 'sₜ₊₁', step: 2 },
+      { from: 'obs', to: 'memory', label: 'oₜ₊₁, rₜ₊₁', step: 3 },
+      { from: 'memory', to: 'learn', fromSide: 'top', toSide: 'left', label: 'experience', labelAt: 0.35, step: 4 },
+      { from: 'learn', to: 'policy', fromSide: 'right', toSide: 'top', label: 'update policy', labelAt: 0.6, dashed: true, step: 5 },
     ]}
   />
 </Figure>
