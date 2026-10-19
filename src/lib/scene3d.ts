@@ -181,69 +181,126 @@ const MODELS: Record<string, Builder> = {
     g.userData.update = (dt: number) => (sails.rotation.z -= dt * 0.6);
   },
 
-  gripper(g, t) {
-    // A parallel-jaw gripper on an arm link shuttles a cube between two
-    // marked spots: descend, close, lift, traverse, descend, open, lift.
-    const SPOTS = [-1.35, 1.35];
-    const HOVER = 2.9; // fingertip height while travelling
-    const GRASP = 0.62; // fingertip height at the cube
-    const OPEN = 1.05; // finger inner-face offset from the center
-    const CLOSED = 0.61; // pads touch the cube (half-width 0.55)
+  robot_arm(g, t) {
+    // An articulated arm (yaw base, shoulder, elbow, wrist) with a parallel
+    // gripper moves a cube between two marked spots. Joint angles come from
+    // two-link inverse kinematics; the gripper always points straight down.
+    g.userData.scale = 0.78;
+    const BASE = { x: 0, z: -1.5 };
+    const SHOULDER_Y = 2.0; // world height of the shoulder axis
+    const L1 = 2.0; // upper arm
+    const L2 = 1.8; // forearm
+    const D = 1.4; // wrist axis to fingertips
+    const SPOTS = [{ x: -1.4, z: 0.6 }, { x: 1.4, z: 0.6 }];
+    const HOVER = 2.2; // fingertip height while travelling
+    const GRASP = 0.62;
+    const OPEN = 0.62; // finger inner-face offset from the gripper center
+    const CLOSED = 0.4; // cube half-width
     const LOOP = 8;
 
-    // Placement marks: thin outlines on the plinth.
-    for (const x of SPOTS) {
-      t.alt.box(1.5, 0.02, 0.06, x, 0.5, 0.72);
-      t.alt.box(1.5, 0.02, 0.06, x, 0.5, -0.72);
-      t.alt.box(0.06, 0.02, 1.5, x + 0.72, 0.5, 0);
-      t.alt.box(0.06, 0.02, 1.5, x - 0.72, 0.5, 0);
+    // Joint housing: a cylinder along z with a darker end cap.
+    const joint = (tt: Tools, r: number, len: number, x = 0, y = 0) => {
+      const c = tt.cyl(r, r, len, 0, 0, 0, 32);
+      c.rotation.x = Math.PI / 2;
+      c.position.set(x, y, 0);
+      const cap = tt.alt.cyl(r * 0.55, r * 0.55, 0.03, 0, 0, 0, 24);
+      cap.rotation.x = Math.PI / 2;
+      cap.position.set(x, y, len / 2 + 0.01);
+    };
+
+    for (const { x, z } of SPOTS) {
+      t.alt.box(1.1, 0.02, 0.05, x, 0.5, z + 0.53);
+      t.alt.box(1.1, 0.02, 0.05, x, 0.5, z - 0.53);
+      t.alt.box(0.05, 0.02, 1.1, x + 0.53, 0.5, z);
+      t.alt.box(0.05, 0.02, 1.1, x - 0.53, 0.5, z);
     }
 
-    // Cube, origin at its center, with a label patch on two faces.
     const cube = new THREE.Group();
     const ct = t.child(cube);
-    ct.box(1.1, 1.1, 1.1, 0, -0.55, 0);
-    ct.alt.box(0.5, 0.5, 0.02, 0, -0.25, 0.56);
-    ct.alt.box(0.02, 0.5, 0.5, 0.56, -0.25, 0);
+    ct.box(0.8, 0.8, 0.8, 0, -0.4, 0);
+    ct.alt.box(0.36, 0.36, 0.02, 0, -0.18, 0.41);
+    ct.alt.box(0.02, 0.36, 0.36, 0.41, -0.18, 0);
 
-    // Hand, origin at the fingertips' bottom center.
-    const hand = new THREE.Group();
-    const ht = t.child(hand);
-    ht.box(2.7, 0.12, 0.42, 0, 1.62, 0); // guide rail
-    ht.box(3.0, 1.0, 1.25, 0, 1.74, 0); // palm
-    ht.box(2.6, 0.12, 1.05, 0, 2.74, 0);
-    ht.cyl(0.75, 0.75, 0.32, 0, 2.86, 0); // wrist flange
-    ht.alt.cyl(0.8, 0.8, 0.07, 0, 3.18, 0);
-    ht.cyl(0.55, 0.55, 18, 0, 3.25, 0); // arm link, leaving the frame
-    ht.cyl(0.62, 0.62, 0.25, 0, 4.4, 0);
-    // Wrist camera on the front face
-    ht.box(0.8, 0.42, 0.42, 0, 2.05, 0.83);
-    const lens = ht.alt.cyl(0.13, 0.13, 0.1, 0, 0, 0, 24);
-    lens.rotation.x = Math.PI / 2;
-    lens.position.set(0, 2.26, 1.08);
+    // Base flange (fixed) and turret (yaw).
+    t.cyl(0.8, 0.85, 0.2, BASE.x, 0.5, BASE.z, 40);
+    const yaw = new THREE.Group();
+    yaw.position.set(BASE.x, 0.7, BASE.z);
+    const yt = t.child(yaw);
+    yt.alt.cyl(0.66, 0.66, 0.05, 0, 0, 0, 40);
+    yt.cyl(0.6, 0.62, 0.45, 0, 0.05, 0, 40);
+    yt.cyl(0.42, 0.48, SHOULDER_Y - 0.7 - 0.5, 0, 0.5, 0, 32);
 
+    const shoulder = new THREE.Group();
+    shoulder.position.y = SHOULDER_Y - 0.7;
+    const st = yt.child(shoulder);
+    joint(st, 0.46, 0.95);
+    st.box(L1, 0.5, 0.55, L1 / 2, -0.25, 0);
+
+    const elbow = new THREE.Group();
+    elbow.position.x = L1;
+    const et = st.child(elbow);
+    joint(et, 0.38, 0.78);
+    et.box(L2, 0.42, 0.46, L2 / 2, -0.21, 0);
+
+    const wrist = new THREE.Group();
+    wrist.position.x = L2;
+    const wt = et.child(wrist);
+    joint(wt, 0.3, 0.62);
+    // Gripper, built pointing along +x; fingers open along z.
+    wt.box(0.35, 0.36, 0.4, 0.17, -0.18, 0);
+    const flange = wt.alt.cyl(0.3, 0.3, 0.1, 0, 0, 0, 24);
+    flange.rotation.z = Math.PI / 2;
+    flange.position.set(0.4, 0, 0);
+    wt.box(0.38, 0.42, 1.05, 0.64, -0.21, 0);
     const fingers = [1, -1].map((side) => {
       const f = new THREE.Group();
-      const ft = ht.child(f);
-      ft.box(0.3, 1.45, 0.8, 0, 0, 0); // finger
-      ft.box(0.55, 0.32, 0.9, side * 0.1, 1.38, 0); // carriage on the rail
-      ft.alt.box(0.06, 0.75, 0.62, -side * 0.18, 0.08, 0); // rubber pad, inner face
+      const ft = wt.child(f);
+      ft.box(0.55, 0.3, 0.14, 1.1, -0.15, 0);
+      ft.alt.box(0.4, 0.24, 0.04, 1.15, -0.12, -side * 0.09);
       return { f, side };
     });
+
+    // Fingertip target -> joint angles.
+    const reach = (x: number, y: number, z: number) => {
+      const dx = x - BASE.x;
+      const dz = z - BASE.z;
+      const r = Math.hypot(dx, dz);
+      const h = y + D - SHOULDER_Y;
+      const c2 = Math.max(-1, Math.min(1, (r * r + h * h - L1 * L1 - L2 * L2) / (2 * L1 * L2)));
+      const q2 = -Math.acos(c2); // elbow up
+      const q1 = Math.atan2(h, r) - Math.atan2(L2 * Math.sin(q2), L1 + L2 * Math.cos(q2));
+      yaw.rotation.y = Math.atan2(-dz, dx);
+      shoulder.rotation.z = q1;
+      elbow.rotation.z = q2;
+      wrist.rotation.z = -Math.PI / 2 - q1 - q2;
+      return yaw.rotation.y;
+    };
+
+    // Spots in polar coordinates around the base, so traversals follow an arc.
+    const polar = SPOTS.map(({ x, z }) => ({ a: Math.atan2(z - BASE.z, x - BASE.x), r: Math.hypot(x - BASE.x, z - BASE.z) }));
+    cube.rotation.y = Math.atan2(-(SPOTS[0].z - BASE.z), SPOTS[0].x - BASE.x);
 
     const pose = (time: number) => {
       const p = time % LOOP;
       const k = Math.floor(time / LOOP);
-      const from = SPOTS[k % 2];
-      const to = SPOTS[(k + 1) % 2];
+      const [from, to] = [k % 2, (k + 1) % 2];
       const lift = 1 - smooth(0, 1.2, p) + smooth(1.9, 3.1, p) - smooth(4.9, 6.1, p) + smooth(6.8, 8, p);
       const y = GRASP + (HOVER - GRASP) * lift;
-      const x = from + (to - from) * smooth(3.1, 4.9, p);
+      const m = smooth(3.1, 4.9, p);
+      const a = polar[from].a + (polar[to].a - polar[from].a) * m;
+      const r = polar[from].r + (polar[to].r - polar[from].r) * m;
+      const x = BASE.x + Math.cos(a) * r;
+      const z = BASE.z + Math.sin(a) * r;
+      const heading = reach(x, y, z);
       const inner = OPEN + (CLOSED - OPEN) * (smooth(1.2, 1.9, p) - smooth(6.1, 6.8, p));
-      hand.position.set(x, y, 0);
-      for (const { f, side } of fingers) f.position.x = side * (inner + 0.15);
-      const held = p >= 1.9 && p < 6.1;
-      cube.position.set(held ? x : p < 1.9 ? from : to, held ? y + 0.43 : 1.05, 0);
+      for (const { f, side } of fingers) f.position.z = side * (inner + 0.07);
+      if (p >= 1.9 && p < 6.1) {
+        cube.position.set(x, y + 0.28, z);
+        cube.rotation.y = heading;
+      } else {
+        const spot = SPOTS[p < 1.9 ? from : to];
+        cube.position.set(spot.x, 0.9, spot.z);
+      }
     };
 
     let time = 0;
@@ -324,6 +381,7 @@ export function mount(host: HTMLElement, opts: { seed: string; model?: string; s
     const t = tools(g, materials);
     plinth(g, t);
     MODELS[name](g, t);
+    g.scale.setScalar((g.userData.scale as number | undefined) ?? 1);
     return g;
   };
 
