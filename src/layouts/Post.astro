@@ -11,7 +11,7 @@ interface Props {
 
 const { post, headings } = Astro.props;
 const { title, description, date, updated, authors, draft, scene } = post.data;
-const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label');
+const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'references'].includes(h.slug));
 ---
 
 <Base title={title} description={description} ogType="article" split scene={scene}>

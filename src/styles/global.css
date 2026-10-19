@@ -528,6 +528,40 @@ h3 {
   margin: 0 0 0.5rem;
 }
 
+/* References: a "## References" heading followed by an ordered list. */
+.prose h2#references {
+  margin-top: 4rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  font: 500 11px/1.5 var(--sans);
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.prose h2#references + ol {
+  padding-left: 0;
+  list-style: none;
+  counter-reset: ref;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.prose h2#references + ol > li {
+  position: relative;
+  padding-left: 2.25em;
+  margin-bottom: 0.5em;
+  counter-increment: ref;
+}
+
+.prose h2#references + ol > li::before {
+  content: '[' counter(ref) ']';
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- figures ---------- */
 
 .figure {
