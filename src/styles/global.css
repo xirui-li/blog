@@ -119,14 +119,18 @@ main {
   padding-inline: 64px;
 }
 
-/* Post pages: the reading column fills the right two thirds, up to 900px as
-   on lego-anything.com. Figures stay near the diagrams' native width. */
+/* Post pages: the reading column fills the right two thirds (up to 1120px).
+   Figures stay near the diagrams' native width. */
 .is-split {
-  --measure: 56.25rem;
+  --measure: 70rem;
 }
 
 .is-split .prose > .figure:not(.wide) {
-  max-width: 44rem;
+  max-width: 48rem;
+}
+
+.is-split .nav-wrap {
+  width: calc(100% - 128px);
 }
 
 /* ---------- site chrome ---------- */
