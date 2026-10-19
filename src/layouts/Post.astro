@@ -10,11 +10,11 @@ interface Props {
 }
 
 const { post, headings } = Astro.props;
-const { title, description, date, updated, authors, draft } = post.data;
+const { title, description, date, updated, authors, draft, scene } = post.data;
 const toc = headings.filter((h) => h.depth === 2 && h.slug !== 'footnote-label');
 ---
 
-<Base title={title} description={description} ogType="article" split>
+<Base title={title} description={description} ogType="article" split scene={scene}>
   <article class="post">
     <header class="post-header">
       {draft && <p class="draft-badge">Draft — not published</p>}

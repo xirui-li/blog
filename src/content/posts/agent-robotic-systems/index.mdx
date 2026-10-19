@@ -1,0 +1,72 @@
+---
+title: 'Agent Robotic Systems'
+description: 'How LLM-based agents perceive, plan, act, and recover in the physical world.'
+date: 2026-10-19
+authors: ['Xirui Li']
+tags: ['robotics', 'agents']
+scene: gripper
+draft: true          # remove when ready to publish
+---
+
+import Figure from '../../../components/Figure.astro';
+import Diagram from '../../../components/Diagram.astro';
+
+{/* Opening: the one-paragraph thesis of the post. What changes when the "user" of a robot is an agent rather than a programmer? */}
+
+## Introduction
+
+{/* Motivation and scope. What do you mean by an agent robotic system? What is this post arguing? */}
+
+## From tools to agents
+
+{/* LLM tool calling vs. embodied agents: actions take time, can fail halfway, and change the world. */}
+
+## System architecture
+
+{/* Walk through the figure: task → agent → skills → controller → robot, with observations closing the loop. */}
+
+<Figure
+  wide
+  title="Agent robotic system."
+  caption="An agent turns a task instruction into calls to a skill library; skills drive real-time controllers on the robot. Observations from the robot's sensors flow back to the agent, closing the loop."
+>
+  <Diagram
+    width={1000}
+    height={290}
+    label="Diagram: Task Instruction to Agent (LLM / VLM) to Skill Library to Controller to Robot; Robot sensing feeds Observations, which feed back to the Agent."
+    nodes={[
+      { id: 'task', x: 20, y: 50, w: 140, h: 60, label: 'Task\nInstruction', kind: 'source' },
+      { id: 'agent', x: 220, y: 50, w: 170, h: 60, label: 'Agent\n(LLM / VLM)', kind: 'engine' },
+      { id: 'skills', x: 450, y: 50, w: 160, h: 60, label: 'Skill Library', kind: 'model' },
+      { id: 'ctrl', x: 670, y: 42, w: 130, h: 76, label: 'Controller', kind: 'decoder', shape: 'trapezoid' },
+      { id: 'robot', x: 850, y: 47, w: 130, h: 66, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { x: 455, y: 126, w: 150, label: 'Tool Calls', kind: 'tag', shape: 'pill' },
+      { x: 660, y: 126, w: 150, label: 'Real-time Loop', kind: 'tag', shape: 'pill' },
+      { id: 'obs', x: 450, y: 212, w: 160, h: 56, label: 'Observations', kind: 'source' },
+    ]}
+    edges={[
+      { from: 'task', to: 'agent' },
+      { from: 'agent', to: 'skills' },
+      { from: 'skills', to: 'ctrl' },
+      { from: 'ctrl', to: 'robot' },
+      { from: 'robot', to: 'obs', fromSide: 'bottom', toSide: 'right', label: 'SENSING', labelAt: 0.3 },
+      { from: 'obs', to: 'agent', fromSide: 'left', toSide: 'bottom', label: 'FEEDBACK', labelAt: 0.35 },
+    ]}
+  />
+</Figure>
+
+## Perception and grounding
+
+{/* How the agent connects language to objects, places, and the robot's own state. */}
+
+## Planning and skills
+
+{/* Granularity of skills, how they are described to the agent, and who decides what. */}
+
+## Execution, feedback, and recovery
+
+{/* Long-running actions, cancellation, failure detection, retries, and safety. */}
+
+## Open questions
+
+{/* What is still unsolved? Where is the field heading? */}

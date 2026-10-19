@@ -1,7 +1,8 @@
-// Side-panel 3D scene: white, procedurally built architecture models on a
-// plinth, seen through an isometric orthographic camera. Scroll rotates the
-// model; each post section crossfades to the next model. Desktop only — the
-// module is loaded on demand by SideScene.astro.
+// Side-panel 3D scene: white, procedurally built models on a plinth, seen
+// through an isometric orthographic camera. Scroll rotates the model; each
+// post section crossfades to the next model unless the post pins one with
+// `scene:` in its frontmatter. Desktop only — the module is loaded on demand
+// by SideScene.astro.
 import * as THREE from 'three';
 
 type Builder = (g: THREE.Group, t: Tools) => void;
@@ -17,9 +18,16 @@ interface Tools {
   ring(n: number, r: number, each: (x: number, z: number, a: number) => void, offset?: number): void;
   /** Tools that add to a child group (for parts that move independently). */
   child(group: THREE.Group): Tools;
+  /** The same tools with the darker accent material (rubber pads, lenses, marks). */
+  readonly alt: Tools;
 }
 
-function tools(g: THREE.Group, material: THREE.Material): Tools {
+interface Materials {
+  base: THREE.Material;
+  alt: THREE.Material;
+}
+
+function tools(g: THREE.Group, mats: Materials, material = mats.base): Tools {
   const add = (geo: THREE.BufferGeometry, x = 0, y = 0, z = 0) => {
     const m = new THREE.Mesh(geo, material);
     m.position.set(x, y, z);
@@ -54,10 +62,18 @@ function tools(g: THREE.Group, material: THREE.Material): Tools {
     },
     child: (group) => {
       g.add(group);
-      return tools(group, material);
+      return tools(group, mats, material);
+    },
+    get alt() {
+      return tools(g, mats, mats.alt);
     },
   };
 }
+
+const smooth = (a: number, b: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
 
 // Every model stands on the same two-step plinth; y = 0.5 is its top.
 const plinth: Builder = (_g, t) => {
@@ -149,7 +165,7 @@ const MODELS: Record<string, Builder> = {
     const cap = t.sphere(1.0, 0, 5.3, 0, true);
     cap.scale.set(1, 0.8, 1.15);
     t.box(0.5, 0.7, 0.1, 0, 0.5, 1.58).rotation.x = -0.12;
-    // Sails on a hub; spun in the render loop via userData.
+    // Sails on a hub, spun by the per-frame update hook.
     const sails = new THREE.Group();
     sails.position.set(0, 5.6, 1.25);
     const st = t.child(sails);
@@ -162,7 +178,77 @@ const MODELS: Record<string, Builder> = {
       at.box(0.7, 2.3, 0.03, 0.42, 0.8, 0.05);
       for (let k = 0; k < 6; k++) at.box(0.75, 0.04, 0.06, 0.42, 0.85 + k * 0.42, 0.08);
     }
-    g.userData.spin = sails;
+    g.userData.update = (dt: number) => (sails.rotation.z -= dt * 0.6);
+  },
+
+  gripper(g, t) {
+    // A parallel-jaw gripper on an arm link shuttles a cube between two
+    // marked spots: descend, close, lift, traverse, descend, open, lift.
+    const SPOTS = [-1.35, 1.35];
+    const HOVER = 2.9; // fingertip height while travelling
+    const GRASP = 0.62; // fingertip height at the cube
+    const OPEN = 1.05; // finger inner-face offset from the center
+    const CLOSED = 0.61; // pads touch the cube (half-width 0.55)
+    const LOOP = 8;
+
+    // Placement marks: thin outlines on the plinth.
+    for (const x of SPOTS) {
+      t.alt.box(1.5, 0.02, 0.06, x, 0.5, 0.72);
+      t.alt.box(1.5, 0.02, 0.06, x, 0.5, -0.72);
+      t.alt.box(0.06, 0.02, 1.5, x + 0.72, 0.5, 0);
+      t.alt.box(0.06, 0.02, 1.5, x - 0.72, 0.5, 0);
+    }
+
+    // Cube, origin at its center, with a label patch on two faces.
+    const cube = new THREE.Group();
+    const ct = t.child(cube);
+    ct.box(1.1, 1.1, 1.1, 0, -0.55, 0);
+    ct.alt.box(0.5, 0.5, 0.02, 0, -0.25, 0.56);
+    ct.alt.box(0.02, 0.5, 0.5, 0.56, -0.25, 0);
+
+    // Hand, origin at the fingertips' bottom center.
+    const hand = new THREE.Group();
+    const ht = t.child(hand);
+    ht.box(2.7, 0.12, 0.42, 0, 1.62, 0); // guide rail
+    ht.box(3.0, 1.0, 1.25, 0, 1.74, 0); // palm
+    ht.box(2.6, 0.12, 1.05, 0, 2.74, 0);
+    ht.cyl(0.75, 0.75, 0.32, 0, 2.86, 0); // wrist flange
+    ht.alt.cyl(0.8, 0.8, 0.07, 0, 3.18, 0);
+    ht.cyl(0.55, 0.55, 18, 0, 3.25, 0); // arm link, leaving the frame
+    ht.cyl(0.62, 0.62, 0.25, 0, 4.4, 0);
+    // Wrist camera on the front face
+    ht.box(0.8, 0.42, 0.42, 0, 2.05, 0.83);
+    const lens = ht.alt.cyl(0.13, 0.13, 0.1, 0, 0, 0, 24);
+    lens.rotation.x = Math.PI / 2;
+    lens.position.set(0, 2.26, 1.08);
+
+    const fingers = [1, -1].map((side) => {
+      const f = new THREE.Group();
+      const ft = ht.child(f);
+      ft.box(0.3, 1.45, 0.8, 0, 0, 0); // finger
+      ft.box(0.55, 0.32, 0.9, side * 0.1, 1.38, 0); // carriage on the rail
+      ft.alt.box(0.06, 0.75, 0.62, -side * 0.18, 0.08, 0); // rubber pad, inner face
+      return { f, side };
+    });
+
+    const pose = (time: number) => {
+      const p = time % LOOP;
+      const k = Math.floor(time / LOOP);
+      const from = SPOTS[k % 2];
+      const to = SPOTS[(k + 1) % 2];
+      const lift = 1 - smooth(0, 1.2, p) + smooth(1.9, 3.1, p) - smooth(4.9, 6.1, p) + smooth(6.8, 8, p);
+      const y = GRASP + (HOVER - GRASP) * lift;
+      const x = from + (to - from) * smooth(3.1, 4.9, p);
+      const inner = OPEN + (CLOSED - OPEN) * (smooth(1.2, 1.9, p) - smooth(6.1, 6.8, p));
+      hand.position.set(x, y, 0);
+      for (const { f, side } of fingers) f.position.x = side * (inner + 0.15);
+      const held = p >= 1.9 && p < 6.1;
+      cube.position.set(held ? x : p < 1.9 ? from : to, held ? y + 0.43 : 1.05, 0);
+    };
+
+    let time = 0;
+    pose(time);
+    g.userData.update = (dt: number) => pose((time += dt));
   },
 
   temple_of_heaven(g, t) {
@@ -194,7 +280,7 @@ const MODELS: Record<string, Builder> = {
 
 export const MODEL_NAMES = Object.keys(MODELS);
 
-export function mount(host: HTMLElement, opts: { seed: string; sections?: HTMLElement[] }) {
+export function mount(host: HTMLElement, opts: { seed: string; model?: string; sections?: HTMLElement[] }) {
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const canvasWrap = document.createElement('div');
   canvasWrap.className = 'scene-canvas';
@@ -228,28 +314,33 @@ export function mount(host: HTMLElement, opts: { seed: string; sections?: HTMLEl
   fill.position.set(8, 4, 2);
   scene.add(fill);
 
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0 });
+  const materials: Materials = {
+    base: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0 }),
+    alt: new THREE.MeshStandardMaterial({ color: 0xa9aaa6, roughness: 0.8, metalness: 0 }),
+  };
 
   const build = (name: string) => {
     const g = new THREE.Group();
-    const t = tools(g, material);
+    const t = tools(g, materials);
     plinth(g, t);
     MODELS[name](g, t);
     return g;
   };
 
-  // Deterministic starting model per page, then one model per section.
+  // A post's `scene:` keeps one model for the whole page. Otherwise start
+  // from a deterministic model per page and change it per section.
+  // ?scene=<name> sets the first model (handy when tweaking models).
   const hash = [...opts.seed].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
-  // ?scene=<name> pins the first model (handy when tweaking models).
+  const fixed = MODEL_NAMES.indexOf(opts.model ?? '');
   const pinned = MODEL_NAMES.indexOf(new URLSearchParams(location.search).get('scene') ?? '');
-  const base = pinned >= 0 ? pinned : hash % MODEL_NAMES.length;
+  const base = pinned >= 0 ? pinned : fixed >= 0 ? fixed : hash % MODEL_NAMES.length;
   const nameFor = (section: number) => MODEL_NAMES[(base + section) % MODEL_NAMES.length];
 
   let section = 0;
   let model = build(nameFor(0));
   scene.add(model);
 
-  const sections = opts.sections ?? [];
+  const sections = fixed >= 0 ? [] : (opts.sections ?? []);
   const currentSection = () => {
     let i = 0;
     sections.forEach((s, k) => {
@@ -298,8 +389,7 @@ export function mount(host: HTMLElement, opts: { seed: string; sections?: HTMLEl
     const dt = Math.min(clock.getDelta(), 0.1);
     if (!reducedMotion) idle += dt * 0.12;
     model.rotation.y = 0.6 + idle + scrollY * 0.0022;
-    const spin = model.userData.spin as THREE.Object3D | undefined;
-    if (spin && !reducedMotion) spin.rotation.z -= dt * 0.6;
+    if (!reducedMotion) (model.userData.update as ((dt: number) => void) | undefined)?.(dt);
     const s = currentSection();
     if (s !== section) swapTo(s);
     renderer.render(scene, camera);

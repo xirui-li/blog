@@ -45,6 +45,7 @@ description: 'One-sentence summary used on the index and in link previews.'
 date: 2026-10-16
 authors: ['Your Name']
 tags: ['notes']
+scene: gripper       # optional: one 3D model in the side panel for the whole post
 draft: true          # remove when ready to publish
 ---
 
@@ -106,7 +107,7 @@ See the Diagrams section of `components-demo` for a full recreation of a paper f
 
 On screens wider than 900px, post pages split like lego-anything.com (the home page stays a single centered column): a fixed left third (`.side-panel` in `Base.astro`) and the reading column in the right two thirds. The side panel holds only the 3D scene.
 
-The scene (`src/lib/scene3d.ts`) renders white, procedurally built buildings — `pagoda`, `lighthouse`, `temple`, `observatory`, `windmill`, `temple_of_heaven` — that rotate as you scroll; each `##` section of a post crossfades to the next building. three.js is loaded only on wide screens. Add `?scene=<name>` to any URL to preview a specific model; add a new model by adding a builder to `MODELS`.
+The scene (`src/lib/scene3d.ts`) renders white, procedurally built buildings — `pagoda`, `lighthouse`, `temple`, `observatory`, `windmill`, `temple_of_heaven`, plus an animated pick-and-place `gripper` — that rotate as you scroll. Each `##` section of a post crossfades to the next model, unless the post sets `scene: <name>` in its frontmatter to keep one model throughout. three.js is loaded only on wide screens. Add `?scene=<name>` to any URL to preview a specific model; add a new model by adding a builder to `MODELS`.
 
 ### Interactive components
 

@@ -17,6 +17,9 @@ const posts = defineCollection({
     updated: z.coerce.date().optional(),
     authors: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
+    // Side-panel 3D model for the whole post (see MODELS in src/lib/scene3d.ts).
+    // Omit to cycle through models section by section.
+    scene: z.string().optional(),
     // Drafts render in `npm run dev` but are left out of production builds.
     draft: z.boolean().default(false),
   }),

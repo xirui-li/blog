@@ -13,9 +13,11 @@ interface Props {
   ogType?: 'website' | 'article';
   /** Split layout: fixed 3D scene in the left third, reading column in the right two thirds. */
   split?: boolean;
+  /** 3D model for the side panel (split layout only). */
+  scene?: string;
 }
 
-const { title, description = SITE.description, ogType = 'website', split = false } = Astro.props;
+const { title, description = SITE.description, ogType = 'website', split = false, scene } = Astro.props;
 const siteName = SITE.name;
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -52,7 +54,7 @@ const isHome = Astro.url.pathname === withBase('/');
     {
       split && (
         <aside class="side-panel" aria-hidden="true">
-          <SideScene seed={Astro.url.pathname} />
+          <SideScene seed={Astro.url.pathname} model={scene} />
         </aside>
       )
     }
