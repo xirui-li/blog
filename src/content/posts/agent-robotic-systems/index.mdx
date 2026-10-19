@@ -27,28 +27,28 @@ import Diagram from '../../../components/Diagram.astro';
 >
   <Diagram
     width={700}
-    height={515}
+    height={430}
     animate
-    label="Diagram: the agent (memory and belief update, policy/planner, optional learning) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
+    label="Diagram: on the left, the agent (memory and belief update, policy/planner, optional learning) sends action a_t to the environment on the right (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
     groups={[
-      { x: 20, y: 20, w: 660, h: 260, label: 'Agent', labelPos: 'bracket' },
-      { x: 20, y: 335, w: 660, h: 165, label: 'Environment', labelPos: 'bracket' },
+      { x: 15, y: 20, w: 380, h: 390, label: 'Agent', labelPos: 'bracket' },
+      { x: 480, y: 20, w: 205, h: 390, label: 'Environment', labelPos: 'bracket' },
     ]}
     nodes={[
-      { id: 'learn', x: 245, y: 45, w: 210, h: 54, label: 'Learning (optional)', kind: 'mesh' },
-      { id: 'memory', x: 60, y: 160, w: 210, h: 64, label: 'Memory &\nBelief Update', kind: 'source' },
-      { id: 'policy', x: 430, y: 160, w: 210, h: 64, label: 'Policy / Planner', kind: 'engine' },
-      { id: 'state', x: 430, y: 365, w: 210, h: 64, label: 'Hidden State s\nTransition T', kind: 'decoder' },
-      { id: 'obs', x: 60, y: 365, w: 210, h: 64, label: 'Observation Z\nReward R', kind: 'model' },
+      { id: 'policy', x: 195, y: 60, w: 170, h: 60, label: 'Policy / Planner', kind: 'engine' },
+      { id: 'learn', x: 35, y: 180, w: 130, h: 64, label: 'Learning\n(optional)', kind: 'mesh' },
+      { id: 'memory', x: 195, y: 300, w: 170, h: 64, label: 'Memory &\nBelief Update', kind: 'source' },
+      { id: 'state', x: 500, y: 60, w: 165, h: 60, label: 'Hidden State s\nTransition T', kind: 'decoder' },
+      { id: 'obs', x: 500, y: 300, w: 165, h: 64, label: 'Observation Z\nReward R', kind: 'model' },
     ]}
     edges={[
-      { from: 'memory', to: 'policy', fromAt: 0.3, toAt: 0.3, label: 'mₜ / bₜ', step: 0 },
+      { from: 'memory', to: 'policy', fromAt: 0.35, toAt: 0.35, label: 'mₜ / bₜ', labelAt: 0.35, step: 0 },
       { from: 'policy', to: 'state', label: 'action aₜ', step: 1 },
-      { from: 'policy', to: 'memory', fromAt: 0.75, toAt: 0.75, label: 'executed aₜ', step: 1 },
+      { from: 'policy', to: 'memory', fromAt: 0.7, toAt: 0.7, label: 'executed aₜ', labelAt: 0.3, step: 1 },
       { from: 'state', to: 'obs', label: 'sₜ₊₁', step: 2 },
       { from: 'obs', to: 'memory', label: 'oₜ₊₁, rₜ₊₁', step: 3 },
-      { from: 'memory', to: 'learn', fromSide: 'top', toSide: 'left', label: 'experience', labelAt: 0.35, step: 4 },
-      { from: 'learn', to: 'policy', fromSide: 'right', toSide: 'top', label: 'update policy', labelAt: 0.6, dashed: true, step: 5 },
+      { from: 'memory', to: 'learn', fromSide: 'left', toSide: 'bottom', label: 'experience', labelAt: 0.3, step: 4 },
+      { from: 'learn', to: 'policy', fromSide: 'top', toSide: 'left', label: 'update policy', labelAt: 0.3, dashed: true, step: 5 },
     ]}
   />
 </Figure>

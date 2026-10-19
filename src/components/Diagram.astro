@@ -37,7 +37,7 @@ const routed = edges.map((e) => routeEdge(e, byId));
 // Animation schedule: tokens move at a constant SPEED (viewBox units per
 // second). Edges sharing a step leave together; the next step starts when the
 // longest of them arrives. The cycle ends with a short pause.
-const SPEED = 240;
+const SPEED = 140;
 const PULSE = 0.7;
 const uid = Math.random().toString(36).slice(2, 8);
 const steps = edges.map((e, i) => e.step ?? i);
