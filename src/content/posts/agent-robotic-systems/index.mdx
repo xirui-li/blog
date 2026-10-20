@@ -68,8 +68,7 @@ import Diagram from '../../../components/Diagram.astro';
 
     2. Vision-Language-Action models (VLA), e.g. π0.5 [1] and MolmoAct 2 [2]: a VLM backbone with an action expert maps images + a language instruction to low-level actions. π0.5 predicts a high-level subtask in language first; MolmoAct 2 reasons spatially before acting (MolmoAct2-Think adapts the depth). The thinking stays inside one forward pass.
 
-    3. World Action Models (WAM): policies built on video-generation backbones that predict future observations and actions together. On the loop, the policy carries an internal model of T and Z — it imagines the next observation before acting.
-       TODO: pick one or two representative works (candidates: DreamZero, NVIDIA, Feb 2026; τ0-WM, AgiBot, May 2026).
+    3. World Action Models (WAM), e.g. DreamZero [3], the paper that named the family: a 14B autoregressive video-diffusion model that jointly predicts future video and the actions that produce it, running closed-loop at 7 Hz. Claims: over 2× better generalization to new tasks and environments than state-of-the-art VLAs, and cross-embodiment transfer from video-only demonstrations. On the loop, the policy carries an internal model of T and Z — it imagines the next observation before acting.
 
     4. What both share, and what the loop is missing (sets up the rest of the post):
        - one step is still one control tick, not "one action with an outcome";
@@ -95,7 +94,7 @@ import Diagram from '../../../components/Diagram.astro';
 
     Prior knowledge K — and in-context learning:
     - What goes in K: skill descriptions, API docs, rules, maps — and examples / demonstrations.
-    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [3] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
+    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [4] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
     - On the loop: demonstrations enter as K (seeding M), feedback arrives as observations and is written into M, and the compiler is context construction (the mₜ edge). No weights change — so ICL lives in Task + Memory, not in the Learning box.
     - End-to-end: K is baked into the weights; adapting means retraining. Agent: K is explicit and can be read, edited, swapped, or extended with new examples. */}
 
@@ -141,7 +140,7 @@ import Diagram from '../../../components/Diagram.astro';
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
-    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [3]) — it is covered under Task (K) and Inside the Agent (M).
+    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [4]) — it is covered under Task (K) and Inside the Agent (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## Open Questions
@@ -152,5 +151,6 @@ import Diagram from '../../../components/Diagram.astro';
 
 1. Physical Intelligence. [π0.5: a Vision-Language-Action Model with Open-World Generalization](https://proceedings.mlr.press/v305/black25a.html). Proceedings of the Conference on Robot Learning (CoRL), PMLR 305, 2025.
 2. Ai2. [MolmoAct2: Action Reasoning Models for Real-world Deployment](https://allenai.org/papers/molmoact2). 2026.
-3. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
+3. S. Ye et al. [World Action Models are Zero-shot Policies](https://arxiv.org/abs/2602.15922). arXiv:2602.15922, 2026.
+4. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
 
