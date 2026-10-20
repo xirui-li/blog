@@ -20,20 +20,20 @@ import Diagram from '../../../components/Diagram.astro';
 <Figure
   width={1100}
   title="The agent–environment loop."
-  caption="The task conditions the agent: the instruction and success criteria shape the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Dashed lines mark optional learning: from interaction experience or other data, it updates the policy π and the memory update F — the rules, not the memory contents mₜ."
+  caption="The task conditions the agent: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Dashed lines mark optional learning: from interaction experience or other data, it updates the policy π and the memory update F — the rules, not the memory contents mₜ."
 >
   <Diagram
     width={1100}
     height={330}
     animate
-    label="Diagram: a task box on the left gives the instruction and success criteria to the agent's policy and prior knowledge to its memory. The agent (policy/planner and memory and belief update, with learning on the right) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
+    label="Diagram: a task box on the left gives the instruction to the agent's policy and prior knowledge to its memory. The agent (policy/planner and memory and belief update, with learning on the right) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
     groups={[
       { x: 15, y: 20, w: 180, h: 290, label: 'Task', labelPos: 'bracket' },
       { x: 255, y: 20, w: 500, h: 290, label: 'Agent', labelPos: 'bracket' },
       { x: 840, y: 20, w: 225, h: 290, label: 'Environment', labelPos: 'bracket' },
     ]}
     nodes={[
-      { id: 'goal', x: 32, y: 41, w: 146, h: 66, label: 'Instruction g\nSuccess Criteria', kind: 'splat' },
+      { id: 'goal', x: 32, y: 45, w: 146, h: 58, label: 'Instruction g', kind: 'splat' },
       { id: 'prior', x: 32, y: 215, w: 146, h: 60, label: 'Prior Knowledge', kind: 'splat' },
       { id: 'policy', x: 285, y: 45, w: 180, h: 58, label: 'Policy / Planner', kind: 'engine' },
       { id: 'memory', x: 285, y: 215, w: 180, h: 60, label: 'Memory &\nBelief Update', kind: 'source' },
