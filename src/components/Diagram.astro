@@ -100,13 +100,24 @@ const legendItems = (legend?.items ?? []).map((item) => {
   {
     groups.map((g) => (
       <g class="group">
+        {Array.from({ length: g.stack ?? 0 }, (_, k) => g.stack! - k).map((k) => (
+          <rect
+            x={g.x + k * 9}
+            y={g.y - k * 9}
+            width={g.w}
+            height={g.h}
+            rx={18}
+            class="group-stack"
+            opacity={1 - (k - 1) * 0.35}
+          />
+        ))}
         <rect
           x={g.x}
           y={g.y}
           width={g.w}
           height={g.h}
           rx={g.variant === 'filled' ? 14 : 18}
-          class={g.variant === 'filled' ? 'group-filled' : 'group-dashed'}
+          class:list={[g.variant === 'filled' ? 'group-filled' : 'group-dashed', { 'group-front': g.stack }]}
         />
         {g.label && g.labelPos === 'bracket' && (
           <text x={g.x + 24} y={g.y + g.h - 16} class="group-bracket">
@@ -277,6 +288,18 @@ const legendItems = (legend?.items ?? []).map((item) => {
     stroke: #b4b8be;
     stroke-width: 2;
     stroke-dasharray: 5 5;
+  }
+
+  /* Faded copies behind a stacked group; the front copy hides their insides. */
+  .group-stack {
+    fill: #f6f6fa;
+    stroke: #c9c7e0;
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+  }
+
+  .group-front {
+    fill: #fff;
   }
 
   .group-filled {

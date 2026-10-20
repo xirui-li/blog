@@ -98,7 +98,7 @@ import Diagram from '../../../components/Diagram.astro';
 - Node `kind` (color): `model` teal · `engine` yellow · `source` purple · `decoder` blue · `mesh` green · `splat` peach · `neutral` · `tag` peach pill · `dark` · `go` · `gray` · `plain`.
 - Node `shape`: `box` · `pill` · `trapezoid` · `tokens` (`count`) · `image` (`src`) · `text`.
 - Edges route automatically with rounded corners. Override with `fromSide`/`toSide`, `fromAt`/`toAt` (0–1 along the side), `mid`, or explicit `via` waypoints; add `label`, `labelAt`, `dashed`.
-- Groups: dashed boxes with a `top` label ("STAGE 1") or `labelPos: 'bracket'` ("[ GEOMETRY MODEL ]"); `variant: 'filled'` for a gray backdrop.
+- Groups: dashed boxes with a `top` label ("STAGE 1") or `labelPos: 'bracket'` ("[ GEOMETRY MODEL ]"); `variant: 'filled'` for a gray backdrop; `stack: 2` draws faded copies behind to show N instances. Edges can start or end at a point on a group's border (`from: [x, y]`).
 - `legend={{ x, y, direction: 'row', items: [{ kind: 'model', label: 'Model Training' }] }}`.
 - `animate` sends a token along the edges at constant speed, in `step` order (edges sharing a step move together), pulsing each node on arrival; `still: true` keeps an edge out of the animation. Off under reduced motion.
 

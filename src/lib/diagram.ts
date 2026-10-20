@@ -90,6 +90,8 @@ export interface DiagramGroup {
   /** top: centered above ("STAGE 1") · bracket: bottom-left inside ("[ GEOMETRY MODEL ]") */
   labelPos?: 'top' | 'bracket';
   variant?: 'dashed' | 'filled';
+  /** Draw this many faded copies behind, offset up and to the right, to show N instances. */
+  stack?: number;
 }
 
 export interface LegendItem {
