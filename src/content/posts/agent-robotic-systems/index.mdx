@@ -20,7 +20,7 @@ import Diagram from '../../../components/Diagram.astro';
 <Figure
   width={925}
   title="The agent–environment loop."
-  caption="The task is set once per episode: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment then interact step after step (t = 0, 1, 2, …). They interact only through actions and observations. Inside the agent, the state of memory M, mₜ (a belief bₜ is one form of it), is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from the experience of many such loops (the stack), it updates the agent's policy π and memory M."
+  caption="The task is set once per episode: the instruction shapes the policy, and prior knowledge K seeds memory. The agent and the environment then interact step after step (t = 0, 1, 2, …). They interact only through actions and observations. Inside the agent, the state of memory M, mₜ (a belief bₜ is one form of it), is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from the experience of many such loops (the stack), it updates the agent's policy π and memory M."
 >
   <Diagram
     width={925}
@@ -37,7 +37,7 @@ import Diagram from '../../../components/Diagram.astro';
     ]}
     nodes={[
       { id: 'goal', x: 32, y: 66, w: 146, h: 58, label: 'Instruction g', kind: 'splat' },
-      { id: 'prior', x: 32, y: 196, w: 146, h: 60, label: 'Prior Knowledge', kind: 'splat' },
+      { id: 'prior', x: 32, y: 196, w: 146, h: 60, label: 'Prior Knowledge K', kind: 'splat' },
       { id: 'policy', x: 290, y: 66, w: 180, h: 58, label: 'Policy π', kind: 'engine' },
       { id: 'memory', x: 290, y: 196, w: 180, h: 60, label: 'Memory M', kind: 'source' },
       { id: 'state', x: 675, y: 66, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
