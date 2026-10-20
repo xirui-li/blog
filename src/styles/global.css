@@ -139,6 +139,17 @@ main {
   width: calc(100% - 128px);
 }
 
+/* Magnetic sections (as on lego-anything.com): near a section heading the
+   page settles onto it; long sections still scroll freely in between. */
+html:has(body.is-split) {
+  scroll-snap-type: y proximity;
+}
+
+.is-split .post-header,
+.is-split .prose > h2 {
+  scroll-snap-align: start;
+}
+
 /* ---------- site chrome ---------- */
 
 .site-header {
@@ -719,7 +730,9 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html,
+  html:has(body.is-split) {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }
