@@ -21,7 +21,7 @@ import Diagram from '../../../components/Diagram.astro';
 <Figure
   width={925}
   title="The agent–environment loop."
-  caption="The task is set once per episode: the instruction shapes the policy, and prior knowledge K seeds memory. The agent and the environment then interact step after step (t = 0, 1, 2, …). They interact only through actions and observations. Inside the agent, the state of memory M, mₜ (a belief bₜ is one form of it), is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from the experience of many such loops (the stack), it updates the agent's policy π and memory M."
+  caption="The task is set once per episode; the agent and the environment then interact step by step, only through actions and observations. Learning sits outside this loop and updates π and M from the experience of many episodes."
 >
   <Diagram
     width={925}
@@ -62,13 +62,14 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## How the Loop Used to Be
 
-{/* A short review, no subsections. Four paragraphs and one figure.
+{/* A short review of the two end-to-end families, no subsections.
 
     1. The same loop, instantiated end to end: one network takes over the whole agent side — observations in, actions out, at a fixed rate.
 
-    2. π0.5 [1], described through the loop: o = images + language instruction + proprioception; π first predicts a high-level subtask in language, then an action expert outputs low-level actions; a = action chunks at a fixed rate; generalization comes from co-training on heterogeneous data.
+    2. Vision-Language-Action models (VLA), e.g. π0.5 [1] and MolmoAct 2 [2]: a VLM backbone with an action expert maps images + a language instruction to low-level actions. π0.5 predicts a high-level subtask in language first; MolmoAct 2 reasons spatially before acting (MolmoAct2-Think adapts the depth). The thinking stays inside one forward pass.
 
-    3. MolmoAct 2 [2], focusing on how it differs: it reasons before acting (spatial / embodied reasoning on the Molmo2-ER backbone), and MolmoAct2-Think adapts how deeply it reasons. Part of the thinking becomes explicit, but it still happens inside one forward pass.
+    3. World Action Models (WAM): policies built on video-generation backbones that predict future observations and actions together. On the loop, the policy carries an internal model of T and Z — it imagines the next observation before acting.
+       TODO: pick one or two representative works (candidates: DreamZero, NVIDIA, Feb 2026; τ0-WM, AgiBot, May 2026).
 
     4. What both share, and what the loop is missing (sets up the rest of the post):
        - one step is still one control tick, not "one action with an outcome";
@@ -76,15 +77,27 @@ import Diagram from '../../../components/Diagram.astro';
        - there is no explicit channel for what an action achieved — failure shows up only indirectly in the next image;
        - improving means retraining.
 
-    Figure idea: the "collapsed" loop — Figure 1's layout with Memory and Policy merged into one "π0.5 / MolmoAct 2" box, Learning greyed out as offline training, and the action edge labeled "fixed-rate action chunks". */}
+    Figure idea: the "collapsed" loop — Figure 1's layout with Memory and Policy merged into one end-to-end box, Learning greyed out as offline training, and the action edge labeled "fixed-rate action chunks". */}
 
 ## Task: Instruction and Prior Knowledge
 
 {/* Figure 1: the Task box (g, K) — set once per episode.
-    - Instruction g: a sentence of natural language, or a structured goal with constraints.
-    - Prior knowledge K: skill descriptions, API docs, examples, rules, maps.
-    - End-to-end: g is a language prompt; everything else is baked into the weights.
-      Agent: K is explicit — it can be read, edited, and swapped without retraining. */}
+
+    Instruction g — how prior work has specified the task:
+    - Language: the default for VLAs (π0.5, MolmoAct 2) and for VLM agents, where g is simply a text prompt.
+    - Goal images: show the desired end state (multimodal goal-conditioned policies, e.g. GR-MG, https://arxiv.org/abs/2408.14368).
+    - Sketches and trajectories: RT-Trajectory conditions on rough 2D motion sketches (ICLR 2024, https://arxiv.org/abs/2311.01977); RT-Sketch on hand-drawn goal sketches (CoRL 2024, https://arxiv.org/abs/2403.02709).
+    - Videos and demonstrations: learn the task from a demo video, including from humans with a different body (Vid2Robot, https://arxiv.org/abs/2403.12943).
+    - Multimodal prompts: VIMA interleaves text and images in one prompt (ICML 2023, https://proceedings.mlr.press/v202/jiang23b.html); MUTEX accepts six modalities — video, goal image, text, speech (https://arxiv.org/abs/2309.14320).
+    - Survey framing: language, goal images, human videos, rewards, trajectory scratches, sketches (https://arxiv.org/abs/2312.08782).
+    - Trade-off to discuss: language is easy but ambiguous; images are precise but over-specified; sketches sit in between (RT-Sketch's argument).
+    - End-to-end vs agent: an end-to-end model fixes g's modality at training time; a VLM agent mostly receives text, but can take images or video in context — which leads into K.
+
+    Prior knowledge K — and in-context learning:
+    - What goes in K: skill descriptions, API docs, rules, maps — and examples / demonstrations.
+    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [3] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
+    - On the loop: demonstrations enter as K (seeding M), feedback arrives as observations and is written into M, and the compiler is context construction (the mₜ edge). No weights change — so ICL lives in Task + Memory, not in the Learning box.
+    - End-to-end: K is baked into the weights; adapting means retraining. Agent: K is explicit and can be read, edited, swapped, or extended with new examples. */}
 
 ## Interface: Observation and Action Spaces
 
@@ -128,7 +141,7 @@ import Diagram from '../../../components/Diagram.astro';
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
-    - In-context learning is NOT in this box: weights stay fixed and only memory/context changes, so it is a memory update (see "Inside the Agent").
+    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [3]) — it is covered under Task (K) and Inside the Agent (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## Open Questions
@@ -139,4 +152,5 @@ import Diagram from '../../../components/Diagram.astro';
 
 1. Physical Intelligence. [π0.5: a Vision-Language-Action Model with Open-World Generalization](https://proceedings.mlr.press/v305/black25a.html). Proceedings of the Conference on Robot Learning (CoRL), PMLR 305, 2025.
 2. Ai2. [MolmoAct2: Action Reasoning Models for Real-world Deployment](https://allenai.org/papers/molmoact2). 2026.
+3. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
 

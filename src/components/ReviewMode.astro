@@ -88,6 +88,11 @@ const { post } = Astro.props;
     opacity: 1;
   }
 
+  /* Label via CSS so it never ends up in selected or quoted text. */
+  .rv-fig::after {
+    content: 'Comment';
+  }
+
   .rv-pop {
     position: absolute;
     z-index: 61;
@@ -513,7 +518,7 @@ const { post } = Astro.props;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'rv-fig';
-      btn.textContent = 'Comment';
+      btn.setAttribute('aria-label', 'Comment on figure');
       btn.onclick = () =>
         openPop(
           { kind: 'figure', section: sectionOf(fig), quote: figureLabel(fig), prefix: '', suffix: '' },
