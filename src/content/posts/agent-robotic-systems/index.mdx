@@ -41,7 +41,7 @@ import Diagram from '../../../components/Diagram.astro';
       { id: 'memory', x: 290, y: 196, w: 180, h: 60, label: 'Memory M', kind: 'source' },
       { id: 'state', x: 675, y: 66, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
       { id: 'obs', x: 675, y: 196, w: 175, h: 60, label: 'Observation Z\nReward R', kind: 'model' },
-      { id: 'learn', x: 360, y: 375, w: 440, h: 44, label: 'Learner', kind: 'mesh' },
+      { id: 'learn', x: 360, y: 375, w: 440, h: 44, label: 'Meta-Learning / Continual Learning / RSI', kind: 'mesh' },
     ]}
     edges={[
       { from: 'goal', to: 'policy', label: 'goal', step: 0 },
