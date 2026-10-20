@@ -15,8 +15,9 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## The Agent–Environment Loop
 
-{/* The map for the rest of the post: agent (policy π, memory & belief update), a separate learning box and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
-    What flows through the loop · When it flows · How the loop improves. */}
+{/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
+    Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Inside the Agent" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning Across Episodes".
+    Thesis: the loop fits every robot policy; what differs is how each part is instantiated. Each section contrasts end-to-end models with agent systems. */}
 <Figure
   width={925}
   title="The agent–environment loop."
@@ -69,7 +70,7 @@ import Diagram from '../../../components/Diagram.astro';
 
     3. MolmoAct 2 [2], focusing on how it differs: it reasons before acting (spatial / embodied reasoning on the Molmo2-ER backbone), and MolmoAct2-Think adapts how deeply it reasons. Part of the thinking becomes explicit, but it still happens inside one forward pass.
 
-    4. What both share, and what the loop is missing (sets up the next three sections):
+    4. What both share, and what the loop is missing (sets up the rest of the post):
        - one step is still one control tick, not "one action with an outcome";
        - memory is little more than the latest frames;
        - there is no explicit channel for what an action achieved — failure shows up only indirectly in the next image;
@@ -77,30 +78,58 @@ import Diagram from '../../../components/Diagram.astro';
 
     Figure idea: the "collapsed" loop — Figure 1's layout with Memory and Policy merged into one "π0.5 / MolmoAct 2" box, Learning greyed out as offline training, and the action edge labeled "fixed-rate action chunks". */}
 
-## What Flows Through the Loop
+## Task: Instruction and Prior Knowledge
 
-{/* Representation. For each, contrast end-to-end ↔ agent:
-    - Observation space — the o_{t+1} edge; perception/grounding in Z (or as a tool the agent calls).
-    - Memory & belief — the memory node; world representation; "record executed actions" edge.
-    - Context construction — the b_t edge: what part of memory reaches the policy.
-    - Action space — the a_t edge: joint commands → action chunks → skill calls.
-    - Skill design — interface (name, args, description), granularity, pre/postconditions, what a skill returns (its result is an observation), learned policies as skills. */}
+{/* Figure 1: the Task box (g, K) — set once per episode.
+    - Instruction g: a sentence of natural language, or a structured goal with constraints.
+    - Prior knowledge K: skill descriptions, API docs, examples, rules, maps.
+    - End-to-end: g is a language prompt; everything else is baked into the weights.
+      Agent: K is explicit — it can be read, edited, and swapped without retraining. */}
 
-## When It Flows
+## Interface: Observation and Action Spaces
 
-{/* Time structure of the loop (not a single place on the diagram):
-    - Commitment horizon: single step → action chunking → skills (a skill is a nested inner loop inside a_t).
-    - Sync vs async: does the policy wait while a_t executes, or keep running? (chunked async inference ↔ agents monitoring background skills)
+{/* Figure 1: the two edges between agent and environment — the only way they interact.
+    Observation space (o_{t+1}, r_{t+1}):
+    - raw pixels and proprioception vs. structured perception (objects, poses) vs. skill return values ("grasp failed, cup on table");
+    - active perception: "look" as an action (e.g. detect("cup")) instead of passively receiving every frame;
+    - is the reward r visible at run time? Usually not — mostly for training and evaluation.
+    Action space (a_t): low-level commands → skill calls → programs (code as policy).
+    - What separates them: what an action means, whether it returns a result, and who decides when it ends.
+    - Action chunking does NOT change the action space (still low-level commands, just k at a time) — see "Time".
+    Skill design (the agent-side form of the action space):
+    - interface: name, arguments, description for the model, pre/postconditions;
+    - a skill's return value is an observation — this closes the loop with the observation space;
+    - an end-to-end policy (VLA) can itself be one skill. */}
+
+## Inside the Agent: Memory and Policy
+
+{/* Figure 1: the agent box — Memory M and Policy π, joined by m_t / b_t and executed a_t.
+    Memory M (internal state, not an input; outline from the four questions):
+    - representation & capacity: raw history, summaries, world state, or a belief distribution?
+    - writing & forgetting: what gets written (observations, executed actions, g, K), when it is compressed or dropped;
+    - reading: what part of M reaches the policy each step (context construction — the m_t / b_t edge);
+    - persistence: within one episode, or across tasks?
+    - End-to-end: m_t ≈ the latest few frames. Agent: explicit execution record, world state, possibly long-term memory.
+    Policy π:
+    - end-to-end: one forward pass from observation to action; any reasoning stays inside the network;
+    - agent: ReAct-style — reason about m_t, choose an action, read its result, reason again. */}
+
+## Time: Steps, Chunks, and Asynchrony
+
+{/* Figure 1: "t = 0, 1, 2, …" — the time structure of the agent–environment loop.
+    - Commitment horizon: how long one decision is executed before looking again — single step → action chunk → skill (a skill is a nested inner loop inside a_t).
+    - Sync vs async: does the policy wait while a_t executes, or keep running? (async chunked inference ↔ agents monitoring background skills)
     - Interruption & recovery: issuing a new a_t before the last one finishes.
-    Figure idea: 2×3 table — horizon (step / chunk / skill) × sync / async. */}
+    - Figure idea: horizon (step / chunk / skill) × sync / async, as a 2D grid.
+      e.g. a chunked VLA = low-level action space + medium horizon; a synchronous agent = skill action space + long, variable horizon. */}
 
-## How the Loop Improves
+## Learning Across Episodes
 
-{/* Two learning paths on the diagram:
-    - Weights: learning module + "interaction experience" / "improve policy" edges (RL, fine-tuning).
-    - Context: in-context learning — experience → memory → b_t → policy, no weight update (demos, past episodes, reflections; in-context imitation on the policy side).
-    - Structure: growing or rewriting the skill library.
-    Also feedback: who decides success (R, r_{t+1}). */}
+{/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
+    - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
+    - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
+    - In-context learning is NOT in this box: weights stay fixed and only memory/context changes, so it is a memory update (see "Inside the Agent").
+    - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## Open Questions
 
