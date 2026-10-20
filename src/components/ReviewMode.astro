@@ -1,0 +1,528 @@
+---
+// Dev-only review mode for a post: select text (or use a figure's button) to
+// leave a comment; comments are stored by src/integrations/review.mjs in
+// review/<post>.json. Rendered only under `npm run dev` (see Post.astro).
+interface Props {
+  post: string;
+}
+
+const { post } = Astro.props;
+---
+
+<div id="review-root" data-post={post}>
+  <button type="button" class="rv-add" hidden>Comment</button>
+
+  <div class="rv-pop" hidden>
+    <p class="rv-pop-quote"></p>
+    <textarea rows="4" placeholder="What should change?"></textarea>
+    <div class="rv-pop-actions">
+      <button type="button" class="rv-cancel">Cancel</button>
+      <button type="button" class="rv-save">Save</button>
+    </div>
+  </div>
+
+  <button type="button" class="rv-fab">Review <span class="rv-count"></span></button>
+
+  <aside class="rv-panel" hidden>
+    <header>
+      <span>Comments</span>
+      <label><input type="checkbox" class="rv-show-resolved" /> Resolved</label>
+      <button type="button" class="rv-close" aria-label="Close">×</button>
+    </header>
+    <ul class="rv-list"></ul>
+    <p class="rv-hint">Select text in the post, or use a figure's Comment button.</p>
+  </aside>
+</div>
+
+<style is:global>
+  #review-root {
+    font-family: var(--sans);
+    color: var(--body-ink);
+  }
+
+  ::highlight(review) {
+    background-color: #fff3ae;
+  }
+
+  ::highlight(review-active) {
+    background-color: #f3d24a;
+  }
+
+  .rv-add,
+  .rv-fab,
+  .rv-fig {
+    font: 500 12px/1 var(--sans);
+    border: 1px solid var(--ink);
+    border-radius: 5px;
+    background: var(--ink);
+    color: #fff;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  .rv-add {
+    position: absolute;
+    z-index: 60;
+  }
+
+  .rv-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 60;
+  }
+
+  .figure {
+    position: relative;
+  }
+
+  .rv-fig {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .figure:hover .rv-fig {
+    opacity: 1;
+  }
+
+  .rv-pop {
+    position: absolute;
+    z-index: 61;
+    width: 320px;
+    padding: 14px;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .rv-pop-quote {
+    margin: 0 0 10px;
+    padding-left: 10px;
+    border-left: 2px solid #f3d24a;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-height: 4.5em;
+    overflow: hidden;
+  }
+
+  .rv-pop textarea {
+    width: 100%;
+    font: 14px/1.5 var(--sans);
+    padding: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    resize: vertical;
+  }
+
+  .rv-pop-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .rv-pop-actions button,
+  .rv-item-actions button {
+    font: 12px/1 var(--sans);
+    padding: 7px 11px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .rv-pop-actions .rv-save {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+  }
+
+  .rv-panel {
+    position: fixed;
+    top: calc(var(--nav-height) + 12px);
+    right: 16px;
+    bottom: 76px;
+    z-index: 60;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .rv-panel[hidden] {
+    display: none;
+  }
+
+  .rv-panel header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .rv-panel header label {
+    margin-left: auto;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .rv-close {
+    border: 0;
+    background: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--muted);
+  }
+
+  .rv-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rv-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .rv-item:hover {
+    background: var(--surface);
+  }
+
+  .rv-item.is-resolved {
+    opacity: 0.55;
+  }
+
+  .rv-item-section {
+    font-size: 10px;
+    letter-spacing: 0.72px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .rv-item-quote {
+    margin: 4px 0;
+    padding-left: 8px;
+    border-left: 2px solid #f3d24a;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .rv-item-note {
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .rv-item-reply {
+    margin: 6px 0 0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: #e3f2df;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .rv-item-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .rv-hint {
+    margin: 0;
+    padding: 10px 14px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  type Comment = {
+    id: string;
+    kind: 'text' | 'figure';
+    section: string;
+    quote: string;
+    prefix: string;
+    suffix: string;
+    note: string;
+    status: 'open' | 'resolved';
+    reply?: string;
+  };
+  type Pending = Omit<Comment, 'id' | 'note' | 'status' | 'reply'>;
+
+  const root = document.getElementById('review-root');
+  const article = document.querySelector<HTMLElement>('article.post');
+
+  if (root && article) {
+    const post = root.dataset.post!;
+    const api = '/__review';
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const addBtn = $<HTMLButtonElement>('.rv-add');
+    const pop = $<HTMLDivElement>('.rv-pop');
+    const popQuote = $<HTMLParagraphElement>('.rv-pop-quote');
+    const textarea = $<HTMLTextAreaElement>('.rv-pop textarea');
+    const panel = $<HTMLElement>('.rv-panel');
+    const list = $<HTMLUListElement>('.rv-list');
+    const count = $<HTMLSpanElement>('.rv-count');
+    const showResolved = $<HTMLInputElement>('.rv-show-resolved');
+
+    let comments: Comment[] = [];
+    let pending: Pending | null = null;
+    const anchors = new Map<string, Range | Element>();
+    const highlights = 'highlights' in CSS ? (CSS as any).highlights : null;
+
+    // ---------- data ----------
+    const request = (method: string, query = '', body?: unknown) =>
+      fetch(`${api}?post=${post}${query}`, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify({ post, ...body }) : undefined,
+      });
+
+    async function load() {
+      try {
+        comments = await (await request('GET')).json();
+      } catch {
+        return;
+      }
+      render();
+      anchor();
+    }
+
+    // ---------- anchoring ----------
+    function sectionOf(node: Node) {
+      let name = 'Header';
+      for (const h of article!.querySelectorAll('.prose > h2')) {
+        if (h.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) name = h.textContent ?? name;
+      }
+      return name;
+    }
+
+    function textNodes() {
+      const nodes: Text[] = [];
+      const walker = document.createTreeWalker(article!, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+      return nodes;
+    }
+
+    // Find a comment's quote in the article, preferring the occurrence whose
+    // surrounding text best matches the saved prefix.
+    function locate(c: Comment): Range | null {
+      const nodes = textNodes();
+      const full = nodes.map((n) => n.data).join('');
+      let best = -1;
+      let bestScore = -1;
+      for (let i = full.indexOf(c.quote); i !== -1 && c.quote; i = full.indexOf(c.quote, i + 1)) {
+        const before = full.slice(Math.max(0, i - c.prefix.length), i);
+        let score = 0;
+        while (score < before.length && before[before.length - 1 - score] === c.prefix[c.prefix.length - 1 - score]) score++;
+        if (score > bestScore) [best, bestScore] = [i, score];
+      }
+      if (best < 0) return null;
+      const range = document.createRange();
+      let offset = 0;
+      let startSet = false;
+      for (const n of nodes) {
+        const end = offset + n.data.length;
+        if (!startSet && best < end) {
+          range.setStart(n, best - offset);
+          startSet = true;
+        }
+        if (startSet && best + c.quote.length <= end) {
+          range.setEnd(n, best + c.quote.length - offset);
+          return range;
+        }
+        offset = end;
+      }
+      return null;
+    }
+
+    function anchor() {
+      anchors.clear();
+      const ranges: Range[] = [];
+      for (const c of comments) {
+        if (c.kind === 'figure') {
+          const fig = [...article!.querySelectorAll('figure')].find((f) => figureLabel(f) === c.quote);
+          if (fig) anchors.set(c.id, fig);
+          continue;
+        }
+        const range = locate(c);
+        if (!range) continue;
+        anchors.set(c.id, range);
+        if (c.status === 'open') ranges.push(range);
+      }
+      highlights?.set('review', new (window as any).Highlight(...ranges));
+    }
+
+    function reveal(id: string) {
+      const target = anchors.get(id);
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      window.scrollTo({ top: window.scrollY + rect.top - window.innerHeight / 3, behavior: 'smooth' });
+      if (target instanceof Range && highlights) {
+        highlights.set('review-active', new (window as any).Highlight(target));
+        setTimeout(() => highlights.delete('review-active'), 1600);
+      }
+    }
+
+    // ---------- panel ----------
+    function render() {
+      const open = comments.filter((c) => c.status === 'open').length;
+      count.textContent = open ? `(${open})` : '';
+      list.replaceChildren(
+        ...comments
+          .filter((c) => showResolved.checked || c.status === 'open')
+          .map((c) => {
+            const li = document.createElement('li');
+            li.className = `rv-item${c.status === 'resolved' ? ' is-resolved' : ''}`;
+            const add = (tag: string, cls: string, text: string) => {
+              const el = document.createElement(tag);
+              el.className = cls;
+              el.textContent = text;
+              li.append(el);
+              return el;
+            };
+            add('div', 'rv-item-section', c.section);
+            add('p', 'rv-item-quote', c.quote.length > 140 ? c.quote.slice(0, 140) + '…' : c.quote);
+            add('p', 'rv-item-note', c.note);
+            if (c.reply) add('p', 'rv-item-reply', `Claude: ${c.reply}`);
+            const actions = add('div', 'rv-item-actions', '');
+            const toggle = document.createElement('button');
+            toggle.textContent = c.status === 'open' ? 'Resolve' : 'Reopen';
+            toggle.onclick = async (e) => {
+              e.stopPropagation();
+              await request('PATCH', '', { id: c.id, status: c.status === 'open' ? 'resolved' : 'open' });
+              load();
+            };
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.onclick = async (e) => {
+              e.stopPropagation();
+              await request('DELETE', `&id=${c.id}`);
+              load();
+            };
+            actions.append(toggle, del);
+            li.onclick = () => reveal(c.id);
+            return li;
+          }),
+      );
+    }
+
+    $<HTMLButtonElement>('.rv-fab').onclick = () => {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) load();
+    };
+    $<HTMLButtonElement>('.rv-close').onclick = () => (panel.hidden = true);
+    showResolved.onchange = render;
+
+    // ---------- creating comments ----------
+    function placeAt(el: HTMLElement, rect: DOMRect) {
+      el.style.top = `${window.scrollY + rect.bottom + 8}px`;
+      el.style.left = `${Math.min(window.scrollX + rect.left, window.scrollX + document.documentElement.clientWidth - 340)}px`;
+    }
+
+    function openPop(p: Pending, rect: DOMRect) {
+      pending = p;
+      popQuote.textContent = p.quote;
+      textarea.value = '';
+      placeAt(pop, rect);
+      pop.hidden = false;
+      addBtn.hidden = true;
+      textarea.focus();
+    }
+
+    document.addEventListener('mouseup', (e) => {
+      if (root.contains(e.target as Node)) return;
+      setTimeout(() => {
+        const sel = getSelection();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) return void (addBtn.hidden = true);
+        const range = sel.getRangeAt(0);
+        if (!article.contains(range.commonAncestorContainer) || range.toString().trim().length < 2) {
+          addBtn.hidden = true;
+          return;
+        }
+        const before = document.createRange();
+        before.selectNodeContents(article);
+        before.setEnd(range.startContainer, range.startOffset);
+        const after = document.createRange();
+        after.selectNodeContents(article);
+        after.setStart(range.endContainer, range.endOffset);
+        const p: Pending = {
+          kind: 'text',
+          section: sectionOf(range.startContainer),
+          quote: range.toString(),
+          prefix: before.toString().slice(-40),
+          suffix: after.toString().slice(0, 40),
+        };
+        const rect = range.getBoundingClientRect();
+        placeAt(addBtn, rect);
+        addBtn.hidden = false;
+        addBtn.onclick = () => openPop(p, rect);
+      });
+    });
+
+    $<HTMLButtonElement>('.rv-cancel').onclick = () => {
+      pop.hidden = true;
+      pending = null;
+    };
+
+    $<HTMLButtonElement>('.rv-save').onclick = async () => {
+      if (!pending || !textarea.value.trim()) return;
+      await request('POST', '', { ...pending, note: textarea.value });
+      pop.hidden = true;
+      pending = null;
+      getSelection()?.removeAllRanges();
+      load();
+    };
+
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $<HTMLButtonElement>('.rv-save').click();
+      if (e.key === 'Escape') $<HTMLButtonElement>('.rv-cancel').click();
+    });
+
+    // Figures: a hover button comments on the whole figure.
+    function figureLabel(fig: Element) {
+      const label = fig.querySelector('.figure-label')?.textContent?.replace(/\s+/g, ' ').trim();
+      return label || fig.querySelector('figcaption')?.textContent?.slice(0, 60).trim() || 'Figure';
+    }
+
+    for (const fig of article.querySelectorAll<HTMLElement>('figure.figure')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rv-fig';
+      btn.textContent = 'Comment';
+      btn.onclick = () =>
+        openPop(
+          { kind: 'figure', section: sectionOf(fig), quote: figureLabel(fig), prefix: '', suffix: '' },
+          btn.getBoundingClientRect(),
+        );
+      fig.append(btn);
+    }
+
+    load();
+    setInterval(() => !document.hidden && load(), 8000);
+  }
+</script>

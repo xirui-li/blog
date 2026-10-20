@@ -2,6 +2,9 @@
 dist/
 .astro/
 
+# review comments from `npm run dev` (local only)
+review/
+
 # dependencies
 node_modules/
 

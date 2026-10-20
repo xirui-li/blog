@@ -110,6 +110,10 @@ On screens wider than 900px, post pages split like lego-anything.com (the home p
 
 The scene (`src/lib/scene3d.ts`) renders white, procedurally built buildings — `pagoda`, `lighthouse`, `temple`, `observatory`, `windmill`, `temple_of_heaven`, plus an animated pick-and-place `robot_arm` — that rotate as you scroll. Each `##` section of a post crossfades to the next model, unless the post sets `scene: <name>` in its frontmatter to keep one model throughout. three.js is loaded only on wide screens. Add `?scene=<name>` to any URL to preview a specific model; add a new model by adding a builder to `MODELS`.
 
+### Reviewing a draft
+
+In `npm run dev`, every post has a review mode: select text and click **Comment**, or use the **Comment** button that appears when hovering a figure. The **Review** button (bottom right) lists all comments; click one to jump to it. Comments are saved to `review/<slug>.json` (git-ignored) — ask Claude to handle them, and it edits the post, then marks each comment resolved with a reply. None of this is included in production builds.
+
 ### Interactive components
 
 Write an `.astro` component with markup, a scoped `<style>`, and a `<script>` (bundled automatically). Wrapping the behavior in a custom element keeps multiple instances on one page independent — see `src/content/posts/components-demo/Counter.astro`.

@@ -11,6 +11,8 @@ interface Props {
 
 const { post, headings } = Astro.props;
 const { title, description, date, updated, authors, draft, scene } = post.data;
+// Review mode is dev-only; the dynamic import keeps it out of production builds.
+const ReviewMode = import.meta.env.DEV ? (await import('../components/ReviewMode.astro')).default : null;
 const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'references'].includes(h.slug));
 ---
 
@@ -46,5 +48,6 @@ const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'referen
       <slot />
     </div>
   </article>
+  {ReviewMode && <ReviewMode post={post.id} />}
 </Base>
 
