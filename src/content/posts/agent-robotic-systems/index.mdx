@@ -18,40 +18,40 @@ import Diagram from '../../../components/Diagram.astro';
 {/* The map for the rest of the post: agent (memory & belief update, optional learning module, policy/planner) and environment (hidden state s & transition T, observation Z & reward R), connected by a_t and o_{t+1}, r_{t+1}. Introduce the three dimensions:
     What flows through the loop · When it flows · How the loop improves. */}
 <Figure
-  width={1100}
+  width={900}
   title="The agent–environment loop."
-  caption="The task conditions the agent: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Dashed lines mark optional learning: from interaction experience or other data, it updates the policy π and the memory update F — the rules, not the memory contents mₜ."
+  caption="The task conditions the agent: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from experience, it updates the agent's policy π and memory update F — the rules, not the memory contents mₜ."
 >
   <Diagram
-    width={1100}
-    height={330}
+    width={900}
+    height={420}
     animate
-    label="Diagram: a task box on the left gives the instruction to the agent's policy and prior knowledge to its memory. The agent (policy/planner and memory and belief update, with learning on the right) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to the agent's memory."
+    label="Diagram: a task box gives the instruction to the agent's policy and prior knowledge to its memory. The agent (policy/planner, memory and belief update) sends action a_t to the environment (hidden state and transition, observation and reward), which returns observation o_t+1 and reward r_t+1 to memory. A separate learning box below takes experience and updates the agent's policy and memory update rule."
     groups={[
-      { x: 15, y: 20, w: 180, h: 290, label: 'Task', labelPos: 'bracket' },
-      { x: 255, y: 20, w: 500, h: 290, label: 'Agent', labelPos: 'bracket' },
-      { x: 840, y: 20, w: 225, h: 290, label: 'Environment', labelPos: 'bracket' },
+      { x: 15, y: 20, w: 180, h: 265, label: 'Task', labelPos: 'bracket' },
+      { x: 255, y: 20, w: 250, h: 265, label: 'Agent', labelPos: 'bracket' },
+      { x: 640, y: 20, w: 245, h: 265, label: 'Environment', labelPos: 'bracket' },
+      { x: 255, y: 325, w: 630, h: 85, label: 'Learning', labelPos: 'bracket' },
     ]}
     nodes={[
       { id: 'goal', x: 32, y: 45, w: 146, h: 58, label: 'Instruction g', kind: 'splat' },
-      { id: 'prior', x: 32, y: 215, w: 146, h: 60, label: 'Prior Knowledge', kind: 'splat' },
-      { id: 'policy', x: 285, y: 45, w: 180, h: 58, label: 'Policy / Planner', kind: 'engine' },
-      { id: 'memory', x: 285, y: 215, w: 180, h: 60, label: 'Memory &\nBelief Update', kind: 'source' },
-      { id: 'learn', x: 540, y: 132, w: 150, h: 58, label: 'Learning', kind: 'mesh' },
-      { id: 'state', x: 865, y: 45, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
-      { id: 'obs', x: 865, y: 215, w: 175, h: 60, label: 'Observation Z\nReward R', kind: 'model' },
+      { id: 'prior', x: 32, y: 185, w: 146, h: 60, label: 'Prior Knowledge', kind: 'splat' },
+      { id: 'policy', x: 290, y: 45, w: 180, h: 58, label: 'Policy / Planner', kind: 'engine' },
+      { id: 'memory', x: 290, y: 185, w: 180, h: 60, label: 'Memory &\nBelief Update', kind: 'source' },
+      { id: 'state', x: 675, y: 45, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
+      { id: 'obs', x: 675, y: 185, w: 175, h: 60, label: 'Observation Z\nReward R', kind: 'model' },
+      { id: 'learn', x: 480, y: 340, w: 180, h: 50, label: 'Learner', kind: 'mesh' },
     ]}
     edges={[
-      { from: 'goal', to: 'policy', fromAt: 0.5, toAt: 0.5, label: 'goal', step: 0 },
+      { from: 'goal', to: 'policy', label: 'goal', step: 0 },
       { from: 'prior', to: 'memory', label: 'prior', step: 0 },
-      { from: 'memory', to: 'policy', fromAt: 0.35, toAt: 0.35, label: 'mₜ / bₜ', labelAt: 0.35, step: 1 },
-      { from: 'policy', to: 'state', fromAt: 0.5, toAt: 0.5, label: 'action aₜ', step: 2 },
-      { from: 'policy', to: 'memory', fromAt: 0.7, toAt: 0.7, label: 'executed aₜ', labelAt: 0.3, step: 2 },
+      { from: 'memory', to: 'policy', fromAt: 0.35, toAt: 0.35, label: 'mₜ / bₜ', labelAt: 0.4, step: 1 },
+      { from: 'policy', to: 'state', label: 'action aₜ', step: 2 },
+      { from: 'policy', to: 'memory', fromAt: 0.7, toAt: 0.7, label: 'executed aₜ', labelAt: 0.4, step: 2 },
       { from: 'state', to: 'obs', label: 'sₜ₊₁', step: 3 },
-      { from: 'obs', to: 'memory', toAt: 0.6, fromAt: 0.6, label: 'oₜ₊₁, rₜ₊₁', step: 4 },
-      { from: [836, 161], to: 'learn', toSide: 'right', label: 'experience', dashed: true, step: 5 },
-      { from: 'learn', to: 'policy', fromSide: 'left', toSide: 'right', fromAt: 0.3, toAt: 0.85, label: 'update π', labelAt: 0.5, dashed: true, step: 6 },
-      { from: 'learn', to: 'memory', fromSide: 'left', toSide: 'right', fromAt: 0.7, toAt: 0.2, label: 'update F', labelAt: 0.5, dashed: true, step: 6 },
+      { from: 'obs', to: 'memory', label: 'oₜ₊₁, rₜ₊₁', step: 4 },
+      { from: 'obs', to: 'learn', fromSide: 'bottom', toSide: 'right', fromAt: 0.85, label: 'experience', labelAt: 0.25, dashed: true, step: 5 },
+      { from: 'learn', to: [380, 287], fromSide: 'left', label: 'update π, F', labelAt: 0.45, dashed: true, step: 6 },
     ]}
   />
 </Figure>
