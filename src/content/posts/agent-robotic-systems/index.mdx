@@ -20,28 +20,28 @@ import Diagram from '../../../components/Diagram.astro';
 <Figure
   width={925}
   title="The agent–environment loop."
-  caption="The task conditions the agent: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, memory mₜ (a belief bₜ is one form of it) is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from the experience of many such loops (the stack), it updates the agent's policy π and memory update F — the rules, not the memory contents mₜ."
+  caption="The task conditions the agent: the instruction shapes the policy, and prior knowledge seeds memory. The agent and the environment interact only through actions and observations. Inside the agent, the state of memory M, mₜ (a belief bₜ is one form of it), is what the policy acts on, and every executed action is recorded back. Inside the environment, the hidden state transitions and produces the next observation and reward. Learning sits outside the runtime loop (dashed, optional): from the experience of many such loops (the stack), it updates the agent's policy π and memory M."
 >
   <Diagram
     width={925}
-    height={425}
+    height={460}
     animate
-    label="Diagram: one task–agent–environment loop, drawn as a stack of N loops. The task gives the instruction to the agent's policy and prior knowledge to its memory; the agent sends action a_t to the environment, which returns observation o_t+1 and reward r_t+1. A separate learning box below collects experience from all N loops and updates the agent's policy and memory update rule."
+    label="Diagram: one task–agent–environment loop, drawn as a stack of N loops. The task gives the instruction to the agent's policy and prior knowledge to its memory; the agent sends action a_t to the environment, which returns observation o_t+1 and reward r_t+1. A separate learning box below collects experience from all N loops and updates the agent's policy and memory."
     groups={[
       { x: 5, y: 34, w: 890, h: 272, stack: 2 },
       { x: 15, y: 44, w: 180, h: 250, label: 'Task', labelPos: 'bracket' },
       { x: 255, y: 44, w: 250, h: 250, label: 'Agent', labelPos: 'bracket' },
       { x: 640, y: 44, w: 245, h: 250, label: 'Environment', labelPos: 'bracket' },
-      { x: 255, y: 335, w: 630, h: 82, label: 'Learning', labelPos: 'bracket' },
+      { x: 255, y: 350, w: 630, h: 100, label: 'Learning', labelPos: 'bracket' },
     ]}
     nodes={[
       { id: 'goal', x: 32, y: 66, w: 146, h: 58, label: 'Instruction g', kind: 'splat' },
       { id: 'prior', x: 32, y: 196, w: 146, h: 60, label: 'Prior Knowledge', kind: 'splat' },
       { id: 'policy', x: 290, y: 66, w: 180, h: 58, label: 'Policy π', kind: 'engine' },
-      { id: 'memory', x: 290, y: 196, w: 180, h: 60, label: 'Memory &\nBelief Update', kind: 'source' },
+      { id: 'memory', x: 290, y: 196, w: 180, h: 60, label: 'Memory M', kind: 'source' },
       { id: 'state', x: 675, y: 66, w: 175, h: 58, label: 'Hidden State s\nTransition T', kind: 'decoder' },
       { id: 'obs', x: 675, y: 196, w: 175, h: 60, label: 'Observation Z\nReward R', kind: 'model' },
-      { id: 'learn', x: 480, y: 351, w: 180, h: 50, label: 'Learner', kind: 'mesh' },
+      { id: 'learn', x: 360, y: 375, w: 440, h: 44, label: 'Learner', kind: 'mesh' },
     ]}
     edges={[
       { from: 'goal', to: 'policy', label: 'goal', step: 0 },
@@ -51,8 +51,8 @@ import Diagram from '../../../components/Diagram.astro';
       { from: 'policy', to: 'memory', fromAt: 0.7, toAt: 0.7, label: 'executed aₜ', labelAt: 0.4, step: 2 },
       { from: 'state', to: 'obs', label: 'sₜ₊₁', step: 3 },
       { from: 'obs', to: 'memory', label: 'oₜ₊₁, rₜ₊₁', step: 4 },
-      { from: [800, 306], to: 'learn', toSide: 'right', label: 'experience × N', labelAt: 0.68, dashed: true, step: 5 },
-      { from: 'learn', to: [380, 296], fromSide: 'left', label: 'update π, F', labelAt: 0.45, dashed: true, step: 6 },
+      { from: [760, 306], to: 'learn', toSide: 'top', toAt: 0.909, label: 'experience × N', dashed: true, step: 5 },
+      { from: 'learn', to: [400, 296], fromSide: 'top', fromAt: 0.091, label: 'update π, M', dashed: true, step: 6 },
     ]}
   />
 </Figure>
