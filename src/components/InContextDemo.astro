@@ -1,0 +1,195 @@
+---
+// Interactive figure: demonstrations in the agent's context change what it does,
+// while its weights stay the same.
+import TabletopDefs from './TabletopDefs.astro';
+---
+
+<TabletopDefs />
+
+<in-context-demo class="tt icd">
+  <div class="icd-grid">
+    <svg viewBox="0 0 560 250" role="img" aria-label="A red cup, a basket, and a shelf. Told to tidy up the cup, the agent puts it in the basket with no examples, and on the shelf once its context holds demonstrations.">
+      <rect class="tt-table" x="30" y="214" width="500" height="12" rx="3"></rect>
+      <!-- shelf -->
+      <rect x="430" y="128" width="100" height="8" rx="2" fill="#d9d4c8" stroke="#a9a397" stroke-width="1.5"></rect>
+      <rect x="512" y="136" width="8" height="78" fill="#d9d4c8" stroke="#a9a397" stroke-width="1.5"></rect>
+      <text x="480" y="122" text-anchor="middle" class="tt-label">shelf</text>
+      <text x="300" y="232" text-anchor="middle" class="tt-label">basket</text>
+      <g class="tt-cup tt-cup-red" data-cup="red"><path d="M-16 0 L-19 -44 L19 -44 L16 0 Z"></path><ellipse cx="0" cy="-44" rx="19" ry="5"></ellipse></g>
+      <g transform="translate(300 214)">
+        <path class="tt-basket" d="M-50 0 L-42 -40 L42 -40 L50 0 Z"></path>
+        <path class="tt-weave" d="M-46 -20 H46 M-21 -40 L-25 0 M0 -40 V0 M21 -40 L25 0"></path>
+      </g>
+      <g class="tt-gripper">
+        <line x1="0" y1="-400" x2="0" y2="0"></line>
+        <rect x="-24" y="0" width="48" height="8" rx="2"></rect>
+        <rect x="-24" y="8" width="5" height="30" rx="1"></rect>
+        <rect x="19" y="8" width="5" height="30" rx="1"></rect>
+      </g>
+      <g transform="translate(20 16)">
+        <rect width="170" height="36" rx="10" fill="#fff" stroke="#c9ccd1" stroke-width="1.5"></rect>
+        <text x="14" y="23" font-size="14" fill="#1f1f1f">“Tidy up the cup.”</text>
+      </g>
+    </svg>
+
+    <div class="icd-panels">
+      <div class="icd-panel">
+        <p class="icd-title">Context</p>
+        <ul class="icd-context">
+          <li class="icd-item icd-instr">“Tidy up the cup.”</li>
+        </ul>
+      </div>
+      <div class="icd-panel icd-weights">
+        <p class="icd-title">Weights</p>
+        <p class="icd-hash">π · 3f9a…c21</p>
+        <p class="icd-same">unchanged</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tt-controls">
+    <div class="tt-row">
+      <span class="tt-row-label">Examples</span>
+      <div class="tt-seg" data-group="demos">
+        <button type="button" data-value="0" aria-pressed="true">0</button>
+        <button type="button" data-value="1" aria-pressed="false">1</button>
+        <button type="button" data-value="2" aria-pressed="false">2</button>
+      </div>
+      <span class="tt-label-html">demonstrations in context</span>
+    </div>
+    <p class="tt-status" aria-live="polite"></p>
+  </div>
+</in-context-demo>
+
+<style>
+  .icd-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .icd-panels {
+    display: grid;
+    gap: 10px;
+  }
+
+  .icd-panel {
+    padding: 10px 12px;
+    border: 1px dashed #b4b8be;
+    border-radius: 10px;
+  }
+
+  .icd-title {
+    margin: 0 0 6px;
+    font-size: 10px;
+    letter-spacing: 0.72px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .icd-context {
+    display: grid;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .icd-item {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    line-height: 1.4;
+    background: #fde4cd;
+  }
+
+  .icd-item.icd-demo {
+    background: #d3d0ec;
+    animation: icd-in 0.4s ease;
+  }
+
+  @keyframes icd-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  .icd-hash {
+    margin: 0;
+    font: 12px/1.4 var(--mono);
+    color: var(--ink);
+  }
+
+  .icd-same {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #3e8a3a;
+  }
+
+  .tt-label-html {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 640px) {
+    .icd-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { Tabletop, sleep } from '../lib/tabletop';
+
+  class InContextDemo extends HTMLElement {
+    connectedCallback() {
+      const q = <T extends Element>(s: string) => this.querySelector<T>(s)!;
+      const cup = q('[data-cup="red"]');
+      const list = q<HTMLUListElement>('.icd-context');
+      const status = q<HTMLParagraphElement>('.tt-status');
+      const table = new Tabletop(q('.tt-gripper'), [240, 70], 96);
+      const home = new Map<Element, [number, number]>([[cup, [130, 214]]]);
+      let demos = 0;
+      let run = 0;
+
+      const play = async () => {
+        const id = ++run;
+        table.reset(home);
+        list.querySelectorAll('.icd-demo').forEach((li) => li.remove());
+        for (let i = 1; i <= demos; i++) {
+          const li = document.createElement('li');
+          li.className = 'icd-item icd-demo';
+          li.textContent = `Demo ${i}: cup → shelf`;
+          list.append(li);
+        }
+        status.textContent = demos ? `${demos} example${demos > 1 ? 's' : ''} in context: this person keeps cups on the shelf.` : 'No examples: the agent falls back to a generic guess.';
+        await sleep(500);
+        if (id !== run) return;
+        const done = demos ? await table.pick(cup, 470, 128) : await table.pick(cup, 300, 208);
+        if (!done || id !== run) return;
+        status.textContent = demos
+          ? `✓ On the shelf, learned from ${demos} example${demos > 1 ? 's' : ''}. The weights did not change.`
+          : '✕ In the basket. Reasonable, but not what this person wants.';
+      };
+
+      q('.tt-seg').addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('button');
+        if (!btn) return;
+        this.querySelectorAll('.tt-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        demos = Number(btn.dataset.value);
+        play();
+      });
+
+      new IntersectionObserver((entries, obs) => {
+        if (entries.some((en) => en.isIntersecting)) {
+          obs.disconnect();
+          play();
+        }
+      }).observe(this);
+      table.reset(home);
+    }
+  }
+  customElements.define('in-context-demo', InContextDemo);
+</script>

@@ -10,6 +10,7 @@ draft: true          # remove when ready to publish
 
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
+import InContextDemo from '../../../components/InContextDemo.astro';
 
 {/* Opening: the one-paragraph thesis. The agent–environment loop fits every robot policy; what separates end-to-end models from agent systems is how each part of the loop is instantiated. */}
 
@@ -108,11 +109,31 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
 
 ### Prior Knowledge
 
-Besides the instruction, the agent starts with prior knowledge K: what its skills do, how to call them, which rules to follow, and examples of the task. An end-to-end policy stores all of this in its weights, so changing it means retraining. An LLM-based agent receives K in its context, where it can be read, edited, or swapped.
+Prior knowledge K, such as what skills do, how to call them, rules, and examples, lives in a VLA's weights but in an LLM-based agent's context. There, examples become a way to learn without changing any weights (Figure 2).
 
-Examples in K also become a way to learn. With in-context learning, the agent adapts to a new task from demonstrations placed in its context at deployment, without any weight update. A recent survey [12] groups these methods into four families: context-conditioned policies, geometric demonstration transfer, world-model-based control, and skill- and agent-based execution. The first and third sit roughly on the end-to-end side, with demonstrations fed into a policy or used to predict futures; this post focuses on the last, where the context steers what an agent decides to do. GPT-Policy [13] lets a VLM learn robot tasks from demonstrations, including human videos without robot action labels, and from interaction feedback. RoboICL [14] writes demonstrations and the agent's own past interactions in the same format of observation, action, receipt, and next observation, so the two can be used together.
+<Figure
+  width={760}
+  title="Learning from examples in context."
+  caption="Add demonstrations to the agent's context: what it does changes, while its weights stay the same. In Figure 1, the demonstrations enter as K and seed memory M."
+>
+  <InContextDemo />
+</Figure>
 
-In Figure 1, demonstrations enter as K and seed memory M, while feedback comes back as observations and is written into M. No weights change, so in-context learning lives in the Task and Memory boxes, not in Learning.
+<Figure
+  kind="table"
+  compact
+  title="Four families of in-context learning [12]."
+  caption="This post focuses on the last row, where the context steers what an agent decides to do."
+>
+
+| Family | What the context steers | Side | Example |
+|---|---|---|---|
+| Context-conditioned policies | The policy's input | End-to-end | VIMA [9] |
+| Geometric demonstration transfer | How a demo maps onto new objects | Geometric | |
+| World-model-based control | Predicted futures | End-to-end (WAM) | |
+| **Skill- and agent-based execution** | **Which skills the agent runs** | **LLM-based agent** | **GPT-Policy [13], RoboICL [14]** |
+
+</Figure>
 
 ## Interface: Observation and Action Spaces
 
