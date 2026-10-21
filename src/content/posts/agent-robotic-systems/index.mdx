@@ -329,7 +329,7 @@ Once the model is in the loop, how much each decision delegates also varies wide
 
 ### Memory
 
-In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules decide what is written, kept, read, and forgotten (Figure 5, Table 8).
+In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules decide what is written, kept, read, and forgotten (Figure 5, Table 8). Coding agents already work this way: Claude Code loads CLAUDE.md files into every session and compacts the conversation into a summary when the context fills up [29], and Codex reads AGENTS.md instruction files from the project before every task [30].
 
 <Figure
   width={1100}
@@ -375,8 +375,8 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 | Write | Training data, through the weights | Every action and its receipt, as a record | Observation, action, receipt records in RoboICL [16] |
 | Keep | A fixed window of recent frames | Bounded memory: demonstrations plus recent interactions | RoboICL's anchored memory [16] |
 | Read | The whole window, every step | Context built for the current step, including retrieved experience | Harness VLA retrieves memory from exploration [28] |
-| Forget | Whatever falls out of the window | Compress or drop by rule, keeping what matters for the task | GPT-Policy's context compiler [15] |
-| Persist | One episode; lasting change only by retraining | Across steps, episodes, or tasks | Harness VLA reuses exploration memory at evaluation [28] |
+| Forget | Whatever falls out of the window | Compress or drop by rule, keeping what matters for the task | GPT-Policy's context compiler [15]; compaction in Claude Code [29] |
+| Persist | One episode; lasting change only by retraining | Across steps, episodes, or tasks | Harness VLA reuses exploration memory [28]; CLAUDE.md [29] and AGENTS.md [30] |
 
 </Figure>
 
@@ -399,7 +399,7 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [29, 30].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [31, 32].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -415,7 +415,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [29]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [30].
+    Cited: Towards Embodied Agentic AI [31]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [32].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -475,5 +475,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 26. W. Huang et al. [ReKep: Spatio-Temporal Reasoning of Relational Keypoint Constraints for Robotic Manipulation](https://arxiv.org/abs/2409.01652). Conference on Robot Learning (CoRL), 2024.
 27. W. Huang et al. [VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models](https://arxiv.org/abs/2307.05973). Conference on Robot Learning (CoRL), 2023.
 28. Y. Zhang et al. [Harness VLA: Steering Frozen VLAs into Reliable Manipulation Primitives via Memory-Guided Agents](https://arxiv.org/abs/2607.08448). arXiv:2607.08448, 2026.
-29. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-30. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+29. Anthropic. [How Claude remembers your project](https://code.claude.com/docs/en/memory). Claude Code documentation, 2026.
+30. OpenAI. [Custom instructions with AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md). Codex documentation, 2026.
+31. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+32. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
