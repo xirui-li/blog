@@ -128,18 +128,114 @@ Prior knowledge K, such as what skills do, how to call them, rules, and examples
 
 ## Interface: Observation and Action Spaces
 
-{/* Figure 1: the two edges between agent and environment — the only way they interact.
-    Observation space (o_{t+1}, r_{t+1}):
-    - raw pixels and proprioception vs. structured perception (objects, poses) vs. skill return values ("grasp failed, cup on table");
-    - active perception: "look" as an action (e.g. detect("cup")) instead of passively receiving every frame;
-    - is the reward r visible at run time? Usually not — mostly for training and evaluation.
-    Action space (a_t): low-level commands → skill calls → programs (code as policy).
-    - What separates them: what an action means, whether it returns a result, and who decides when it ends.
-    - Action chunking does NOT change the action space (still low-level commands, just k at a time) — see "Time".
-    Skill design (the agent-side form of the action space):
-    - interface: name, arguments, description for the model, pre/postconditions;
-    - a skill's return value is an observation — this closes the loop with the observation space;
-    - an end-to-end policy (VLA) can itself be one skill. */}
+{/* Figure 1: the two edges between agent and environment — the only way they interact. */}
+
+### Observation Space
+
+What the agent may see sets how hard the same task is (Table 3), and even a "success" from a tool can mean very different things (Table 4). Perception can also be an action: an agent can call a tool such as `get_position(cup)` and read the answer as its next observation.
+
+<Figure
+  kind="table"
+  compact
+  title="What the agent is allowed to see."
+  caption="Simulation can expose privileged state that a real robot never has; Embodied First Exam evaluates agents with and without it [17]."
+>
+
+| Level | Example | Who gets it |
+|---|---|---|
+| Images | RGB from one or more cameras | Every system |
+| Robot state | Joint angles, end-effector pose, depth | Most VLAs |
+| Geometry and calibration | Camera intrinsics, robot model, object meshes | 3D reasoning and planning |
+| Privileged state | Ground-truth object poses from the simulator | Simulation only |
+| Feedback | Tool return values, success signals | LLM-based agents |
+
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title={'What a "success" can mean.'}
+  caption="A tool's return value is an observation, but it may report any of these events; Guava, for example, separates a closed gripper from a grasped object [18]."
+>
+
+| Event | Example |
+|---|---|
+| Request accepted | The tool call did not error |
+| Motion solved | Inverse kinematics found a joint solution |
+| Target reached | Position error within tolerance |
+| Grasp holds | The object is actually in the gripper |
+| Task done | An independent checker passes |
+
+</Figure>
+
+### Action Space
+
+The useful question is not whether a model outputs actions, but what it decides and who fills in the rest (Figure 2).
+
+<Figure
+  width={900}
+  title="Who decides what."
+  caption="The model decides only part of an action; an executor fills in the rest, and a controller turns it into motor commands. Where the first line is drawn separates the levels in Table 5."
+>
+  <Diagram
+    width={900}
+    height={150}
+    animate
+    label="Diagram: the model's decision goes to an executor (IK, planner, skills, or a VLA), which sends a reference to a controller, which sends motor commands to the robot."
+    nodes={[
+      { id: 'model', x: 10, y: 30, w: 150, h: 56, label: 'Model', kind: 'engine' },
+      { id: 'exec', x: 280, y: 30, w: 150, h: 56, label: 'Executor', kind: 'model' },
+      { id: 'ctrl', x: 550, y: 22, w: 130, h: 72, label: 'Controller', kind: 'decoder', shape: 'trapezoid' },
+      { id: 'robot', x: 815, y: 30, w: 80, h: 56, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { x: 10, y: 104, w: 150, label: 'what it decides', kind: 'tag', shape: 'pill' },
+      { x: 260, y: 104, w: 190, label: 'IK, planner, skill, VLA', kind: 'tag', shape: 'pill' },
+      { x: 550, y: 104, w: 130, label: 'servo loop', kind: 'tag', shape: 'pill' },
+    ]}
+    edges={[
+      { from: 'model', to: 'exec', label: 'decision', step: 0 },
+      { from: 'exec', to: 'ctrl', label: 'reference', step: 1 },
+      { from: 'ctrl', to: 'robot', label: 'command', step: 2 },
+    ]}
+  />
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title="Four levels of what the model decides."
+  caption="Code, JSON, and action tokens are output forms that cut across these levels: a program can call a whole grasp skill or compute every end-effector pose [19, 20]."
+>
+
+| Level | The model decides | Example output | Filled in by | Example work |
+|---|---|---|---|---|
+| Local motion | How to move next | "move left", a pose change | Interpreter and controller | Show-Harness [21], RT-2 [5] |
+| Spatial intent | Where to touch, which way to go | Points, keyposes, 2D paths | Depth, planner, or a low-level policy | MOKA [22], HAMSTER [23] |
+| Geometric constraints | Which relations must hold | Keypoint constraints, 3D value maps | Optimizer or MPC | ReKep [24], VoxPoser [25] |
+| Tool choice | Which capability to call | `grasp(cup)`, `vla_act(...)` | Skill library or a frozen VLA | Guava [18], Harness VLA [26] |
+
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title="Same name, different action."
+  caption="An action space is defined only together with its contract: frame, control point, absolute or relative targets, and timing. The same simulator can expose different contracts in different frameworks [17, 27, 28]."
+>
+
+| Looks the same | Actually differs |
+|---|---|
+| A grasp action | `GRASP` closes the gripper [21]; `grasp(name)` also locates and approaches the object [18] |
+| `move_eef` | An absolute flange target, a repeated increment, or a planned move to the grasp point, by backend [27] |
+| An 8-D end-effector vector | Flange or fingertip; WXYZ or XYZW quaternion; gripper 0 means open or closed [28] |
+| "Discrete" actions | Semantic command words [21] or bins over each number [5] |
+
+</Figure>
+
+{/* Notes:
+    - Action chunking does not change the action space (still low-level commands, k at a time) — see "Time".
+    - A tool's return value is an observation (Table 4), which closes the loop between the two subsections.
+    - A VLA can itself be one tool (Harness VLA's vla_act) — the hybrid route in the comparison section.
+    - Programs can complete a task while violating a stated constraint (link to CaP-Safe Bench work, Open Question 3). */}
 
 ## Agent: Policy and Memory
 
@@ -173,7 +269,7 @@ Prior knowledge K, such as what skills do, how to call them, rules, and examples
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [17, 18].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [29, 30].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -189,7 +285,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [17]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [18].
+    Cited: Towards Embodied Agentic AI [29]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [30].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -237,5 +333,17 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 14. J. Zhou et al. [Zero-WAM: In-Context World-Action Modeling from Human Videos for Open-Ended Task Generalization](https://arxiv.org/abs/2608.26103). arXiv:2608.26103, 2026.
 15. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
 16. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
-17. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-18. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+17. K. Wang et al. [Embodied First Exam](https://www.embodied-first-exam.ai). Benchmark website and code, 2026.
+18. H. Liu et al. [Guava: Distilling Frontier VLMs into a Compact Agent through a Robotic Manipulation Harness](https://arxiv.org/abs/2606.18363). arXiv:2606.18363, 2026.
+19. J. Liang et al. [Code as Policies: Language Model Programs for Embodied Control](https://arxiv.org/abs/2209.07753). IEEE International Conference on Robotics and Automation (ICRA), 2023.
+20. L. Fu et al. [CaP-X: A Framework for Benchmarking and Improving Coding Agents for Robot Manipulation](https://arxiv.org/abs/2603.22435). International Conference on Machine Learning (ICML), 2026.
+21. Y. Chen et al. [Show-Harness: Just a VLM Agent Can Play Robots](https://arxiv.org/abs/2609.10522). arXiv:2609.10522, 2026.
+22. K. Fang et al. [MOKA: Open-World Robotic Manipulation through Mark-Based Visual Prompting](https://arxiv.org/abs/2403.03174). Robotics: Science and Systems (RSS), 2024.
+23. Y. Li et al. [HAMSTER: Hierarchical Action Models for Open-World Robot Manipulation](https://arxiv.org/abs/2502.05485). International Conference on Learning Representations (ICLR), 2025.
+24. W. Huang et al. [ReKep: Spatio-Temporal Reasoning of Relational Keypoint Constraints for Robotic Manipulation](https://arxiv.org/abs/2409.01652). Conference on Robot Learning (CoRL), 2024.
+25. W. Huang et al. [VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models](https://arxiv.org/abs/2307.05973). Conference on Robot Learning (CoRL), 2023.
+26. Y. Zhang et al. [Harness VLA: Steering Frozen VLAs into Reliable Manipulation Primitives via Memory-Guided Agents](https://arxiv.org/abs/2607.08448). arXiv:2607.08448, 2026.
+27. Z. Yang et al. [RobotWorld: Benchmarking Multimodal Agents for Robot Use Across Diverse Tasks and Embodiments](https://arxiv.org/abs/2610.10409). arXiv:2610.10409, 2026.
+28. J. X. Yang et al. [Astranomy: An Empirical Study of GPT-6 Astra as a Native Robot Policy](https://research.nvidia.com/labs/srl/projects/astranomy/). NVIDIA technical report, 2026.
+29. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+30. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
