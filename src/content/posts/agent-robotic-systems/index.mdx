@@ -175,7 +175,7 @@ The useful question is not whether a model outputs actions, but what it decides 
 <Figure
   width={900}
   title="Who decides what."
-  caption="The higher the level, the less the model decides. What it leaves out is filled in by an executor (an interpreter, planner, optimizer, or skill), and low-level control turns the result into motor commands."
+  caption="The same task, putting the cup in the basket, at four levels. Going down, the model's output gets more abstract and the executor fills in more; low-level control turns the result into motor commands in every case."
 >
   <Diagram
     width={900}
@@ -183,20 +183,20 @@ The useful question is not whether a model outputs actions, but what it decides 
     label="Bar chart: for local motion the model decides most of the action; for spatial intent, geometric constraints, and tool choice it decides progressively less, and an executor fills in more. Low-level control is the same thin slice at the end of every bar."
     nodes={[
       { x: 195, y: 48, label: 'Local motion', shape: 'text', align: 'end', size: 15 },
-      { x: 210, y: 30, w: 476, h: 36, label: '"move left"', kind: 'engine', size: 14 },
-      { x: 690, y: 30, w: 136, h: 36, label: 'interpreter', kind: 'model', size: 14 },
+      { x: 210, y: 30, w: 390, h: 36, label: '"move left, down, close"', kind: 'engine', size: 13 },
+      { x: 604, y: 30, w: 222, h: 36, label: 'one small motion per word', kind: 'model', size: 13 },
       { x: 830, y: 30, w: 60, h: 36, kind: 'decoder' },
       { x: 195, y: 98, label: 'Spatial intent', shape: 'text', align: 'end', size: 15 },
-      { x: 210, y: 80, w: 286, h: 36, label: 'points, paths', kind: 'engine', size: 14 },
-      { x: 500, y: 80, w: 326, h: 36, label: 'planner', kind: 'model', size: 14 },
+      { x: 210, y: 80, w: 300, h: 36, label: '"grasp here, drop there"', kind: 'engine', size: 13 },
+      { x: 514, y: 80, w: 312, h: 36, label: 'plans a collision-free path', kind: 'model', size: 13 },
       { x: 830, y: 80, w: 60, h: 36, kind: 'decoder' },
       { x: 195, y: 148, label: 'Geometric constraints', shape: 'text', align: 'end', size: 15 },
-      { x: 210, y: 130, w: 176, h: 36, label: 'relations', kind: 'engine', size: 14 },
-      { x: 390, y: 130, w: 436, h: 36, label: 'optimizer', kind: 'model', size: 14 },
+      { x: 210, y: 130, w: 220, h: 36, label: '"cup above basket"', kind: 'engine', size: 13 },
+      { x: 434, y: 130, w: 392, h: 36, label: 'solves for poses that satisfy it', kind: 'model', size: 13 },
       { x: 830, y: 130, w: 60, h: 36, kind: 'decoder' },
       { x: 195, y: 198, label: 'Tool choice', shape: 'text', align: 'end', size: 15 },
-      { x: 210, y: 180, w: 76, h: 36, label: 'which tool', kind: 'engine', size: 13 },
-      { x: 290, y: 180, w: 536, h: 36, label: 'skill or VLA', kind: 'model', size: 14 },
+      { x: 210, y: 180, w: 120, h: 36, label: 'grasp(cup)', kind: 'engine', size: 13 },
+      { x: 334, y: 180, w: 492, h: 36, label: 'the skill runs the whole grasp', kind: 'model', size: 13 },
       { x: 830, y: 180, w: 60, h: 36, kind: 'decoder' },
     ]}
     legend={{ x: 210, y: 232, direction: 'row', items: [
