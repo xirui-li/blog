@@ -419,27 +419,33 @@ Every scheme faces the same tension: waiting for the model stalls the robot, but
 
 ## Learning: Meta-Learning, Continual Learning, and RSI
 
-Learning sits outside the loop and changes the agent itself across episodes. Three ideas are often blurred together, and they differ in what changes and over what span of time (Figure 7, Table 10). Recursive self-improvement (RSI) is the strongest claim: not only a better robot, but a better way of improving it [39]. In-context learning changes only memory, so it belongs to the [agent's memory](#memory) rather than here.
+Learning sits outside the loop: experience from many episodes updates the policy π and memory M, and the improved agent goes back into new episodes (Figure 7). Meta-learning, continual learning, and recursive self-improvement (RSI) are names for this one process from different communities [39]; what separates them is the question asked of it (Table 10). In-context learning changes only memory, so it belongs to the [agent's memory](#memory) rather than here.
 
 <Figure
-  width={1100}
-  title="Three spans of learning."
-  caption="Each span wraps the one inside it: meta-learning learns how to adapt across tasks, continual learning accumulates skills along a task sequence without losing old ones, and RSI improves the improvement process itself across generations."
+  width={1000}
+  title="One learning process."
+  caption="Experience from many episodes updates π and M, and the better agent runs new episodes. The three questions below are three ways to check that this loop actually improves the agent."
 >
   <Diagram
-    width={1100}
-    height={290}
-    label="Nested boxes: one episode of the agent–environment loop sits inside meta-learning across tasks, which sits inside continual learning along a task sequence, which sits inside recursive self-improvement across generations."
+    width={1000}
+    height={260}
+    animate
+    label="A loop: experience from many episodes goes to an update of the policy and memory, which produces a better agent, which runs the next episodes. Below, three questions: does it adapt faster, does it keep old skills, does improvement compound."
     groups={[
-      { x: 10, y: 10, w: 1080, h: 270, label: 'Across generations: RSI', labelPos: 'bracket' },
-      { x: 40, y: 26, w: 1020, h: 210, label: 'Along a task sequence: continual learning', labelPos: 'bracket' },
-      { x: 70, y: 42, w: 960, h: 150, label: 'Across tasks: meta-learning', labelPos: 'bracket' },
+      { x: 30, y: 50, w: 220, h: 90, stack: 2 },
     ]}
     nodes={[
-      { x: 330, y: 66, w: 440, h: 62, label: 'One episode: the loop in Figure 1', kind: 'neutral', shape: 'pill' },
-      { x: 1010, y: 172, label: 'learns how to adapt to a new task', shape: 'text', align: 'end', size: 13, color: '#777' },
-      { x: 1040, y: 216, label: 'keeps old skills while adding new ones', shape: 'text', align: 'end', size: 13, color: '#777' },
-      { x: 1070, y: 260, label: 'improves the way it improves', shape: 'text', align: 'end', size: 13, color: '#777' },
+      { id: 'eps', x: 50, y: 66, w: 180, h: 58, label: 'Episodes\n(the loop in Figure 1)', kind: 'neutral' },
+      { id: 'upd', x: 410, y: 66, w: 180, h: 58, label: 'Update π and M', kind: 'mesh' },
+      { id: 'agent', x: 770, y: 66, w: 180, h: 58, label: 'Better agent', kind: 'engine' },
+      { x: 70, y: 214, w: 220, label: 'Adapts faster?', kind: 'tag', shape: 'pill' },
+      { x: 390, y: 214, w: 220, label: 'Keeps old skills?', kind: 'tag', shape: 'pill' },
+      { x: 710, y: 214, w: 220, label: 'Improvement compounds?', kind: 'tag', shape: 'pill' },
+    ]}
+    edges={[
+      { from: 'eps', to: 'upd', label: 'experience', step: 0 },
+      { from: 'upd', to: 'agent', step: 1 },
+      { from: 'agent', to: 'eps', fromSide: 'bottom', toSide: 'bottom', via: [[860, 180], [140, 180]], label: 'next episodes', step: 2 },
     ]}
   />
 </Figure>
@@ -447,15 +453,15 @@ Learning sits outside the loop and changes the agent itself across episodes. Thr
 <Figure
   kind="table"
   compact
-  title="Three kinds of learning across episodes."
-  caption="Each claim needs its own evidence: a robot that eventually succeeds after many attempts has not necessarily learned anything."
+  title="Three questions to ask of any learning claim."
+  caption="One learning process, three checks. A robot that eventually succeeds after many attempts passes none of them by itself."
 >
 
-| | What changes | Over what span | Evidence it needs | Example work |
-|---|---|---|---|---|
-| Meta-learning | The rule for adapting: an initialization, a recurrent state, or a trained in-context learner | Across tasks from a distribution | Faster adaptation on unseen tasks | MAML [40], RL² [41], ORBIT [42] |
-| Continual learning | Skills and knowledge, in weights or in a skill library | Along a sequence of tasks | New tasks learned while old ones still pass | LIBERO [43], π*0.6 [44], Simple Recipe Works [45] |
-| Recursive self-improvement | The improvement process itself | Across generations of updates | A new update rule beats the old one from the same start, on unseen tasks | EmbodiRSI [46], Hyperagents [47], PhysRSI-eval [48] |
+| Question | Evidence that answers it | Usually called | Example work |
+|---|---|---|---|
+| Does it adapt faster on a new task? | Fewer trials to succeed on unseen tasks than starting fresh | Meta-learning | MAML [40], RL² [41], ORBIT [42] |
+| Does it keep old skills? | Old tasks still pass after new ones are learned | Continual learning | LIBERO [43], π*0.6 [44], Simple Recipe Works [45] |
+| Does improvement compound? | A newer update rule beats the older one from the same start, on unseen tasks | Recursive self-improvement | EmbodiRSI [46], Hyperagents [47], PhysRSI-eval [48] |
 
 </Figure>
 
