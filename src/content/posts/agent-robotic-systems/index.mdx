@@ -15,10 +15,10 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## The Agent–Environment Loop
 
-Every robot policy can be read as the same loop: an agent receives a [task](#task-instruction-and-prior-knowledge), [acts on its environment, and observes what happens](#interface-observation-and-action-spaces). An LLM-based agent makes this loop explicit, [reasoning about what it knows](#agent-policy-and-memory), acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post, from the loop's [timing](#time-steps-chunks-and-asynchrony) to [learning across episodes](#learning-across-episodes) and how [VLAs, WAMs, and LLM-based agents](#vla-vs-wam-vs-llm-based-agent) fill it in.
+Every robot policy can be read as the same loop: an agent receives a [task](#task-instruction-and-prior-knowledge), [acts on its environment, and observes what happens](#interface-observation-and-action-spaces). An LLM-based agent makes this loop explicit, [reasoning about what it knows](#agent-policy-and-memory), acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post, from the loop's [timing](#time-steps-chunks-and-asynchrony) to [learning across episodes](#learning-meta-learning-continual-learning-and-rsi) and how [VLAs, WAMs, and LLM-based agents](#vla-vs-wam-vs-llm-based-agent) fill it in.
 
 {/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
-    Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Agent: Policy and Memory" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning Across Episodes".
+    Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Agent: Policy and Memory" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning".
     Thesis: the loop fits every robot policy; what differs is how each part is instantiated. Each section contrasts end-to-end models with agent systems.
     One paragraph to introduce what is being compared: one network can take over the whole agent box — Vision-Language-Action models (VLA, e.g. π0.5 [2], MolmoAct 2 [3]) map images + instruction to action chunks; World Action Models (WAM, e.g. DreamZero [4]) also predict the future observation. Or the agent box can be an agent system built around a VLM. The full comparison comes near the end. */}
 <Figure
@@ -151,7 +151,7 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
     - Figure idea: horizon (step / chunk / skill) × sync / async, as a 2D grid.
       e.g. a chunked VLA = low-level action space + medium horizon; a synchronous agent = skill action space + long, variable horizon. */}
 
-## Learning Across Episodes
+## Learning: Meta-Learning, Continual Learning, and RSI
 
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
@@ -191,8 +191,8 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 |---|---|---|---|
 | Role | How to move next | What happens if I act | What to do next |
 | Input | Images, instruction, proprio | Images, instruction | Images, instruction, memory, tool results |
-| Output | Action chunks | Future frames + actions | Skill calls, programs |
-| Knowledge | VLM backbone + robot data | Video + action data | Web-scale pretraining |
+| Output | Action chunks | Future frames + actions | Tool calls, programs |
+| Knowledge | VLM backbone + robot data | Video + action data | Agentic + coding post-training |
 | Memory / feedback | Short window, no check | Predicts, no check | History, checks, replans |
 | Strength | Dexterous, low latency | Dynamics, new scenes | Long tasks, composing skills |
 | Limit | Scarce robot data | Compute, prediction error | Skill library, latency |
