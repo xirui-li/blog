@@ -13,5 +13,6 @@ export const SITE = {
     // { name: 'Google Scholar', url: 'https://scholar.google.com/citations?user=<id>', icon: 'scholar' },
     { name: 'RSS', url: '/rss.xml', icon: 'rss' },
     { name: 'GitHub', url: 'https://github.com/xirui-li', icon: 'github' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/xirui-li7/', icon: 'linkedin' },
   ],
 } as const;
