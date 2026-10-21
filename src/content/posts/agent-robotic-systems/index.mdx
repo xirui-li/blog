@@ -15,10 +15,12 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## The Agent–Environment Loop
 
+Every robot policy can be read as the same loop: an agent receives a task, acts on its environment, and observes what happens. An LLM-based agent makes this loop explicit, reasoning about what it knows, acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post; each section covers one part of it.
+
 {/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
     Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Inside the Agent" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning Across Episodes".
     Thesis: the loop fits every robot policy; what differs is how each part is instantiated. Each section contrasts end-to-end models with agent systems.
-    One paragraph to introduce what is being compared: one network can take over the whole agent box — Vision-Language-Action models (VLA, e.g. π0.5 [1], MolmoAct 2 [2]) map images + instruction to action chunks; World Action Models (WAM, e.g. DreamZero [3]) also predict the future observation. Or the agent box can be an agent system built around a VLM. The full comparison comes near the end. */}
+    One paragraph to introduce what is being compared: one network can take over the whole agent box — Vision-Language-Action models (VLA, e.g. π0.5 [2], MolmoAct 2 [3]) map images + instruction to action chunks; World Action Models (WAM, e.g. DreamZero [4]) also predict the future observation. Or the agent box can be an agent system built around a VLM. The full comparison comes near the end. */}
 <Figure
   width={925}
   title="The agent–environment loop."
@@ -77,7 +79,7 @@ import Diagram from '../../../components/Diagram.astro';
 
     Prior knowledge K — and in-context learning:
     - What goes in K: skill descriptions, API docs, rules, maps — and examples / demonstrations.
-    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [4] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
+    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [5] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
     - On the loop: demonstrations enter as K (seeding M), feedback arrives as observations and is written into M, and the compiler is context construction (the mₜ edge). No weights change — so ICL lives in Task + Memory, not in the Learning box.
     - End-to-end: K is baked into the weights; adapting means retraining. Agent: K is explicit and can be read, edited, swapped, or extended with new examples. */}
 
@@ -123,18 +125,18 @@ import Diagram from '../../../components/Diagram.astro';
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
-    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [4]) — it is covered under Task (K) and Inside the Agent (M).
+    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [5]) — it is covered under Task (K) and Inside the Agent (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [5, 6].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [6, 7].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
     Background on the end-to-end families (inputs and outputs):
-    - VLA, π0.5 [1] / MolmoAct 2 [2]: images + instruction (+ proprioception) → fixed-rate action chunks. π0.5 predicts a subtask in language first; MolmoAct 2 reasons spatially before acting. Reasoning stays inside one forward pass.
-    - WAM, DreamZero [3] (named the family): same input → future video + the actions that produce it, from a video-diffusion backbone running closed loop. Reported to generalize to unseen environments and objects better than strong pretrained VLAs in its setting — one setting, not a general ranking.
+    - VLA, π0.5 [2] / MolmoAct 2 [3]: images + instruction (+ proprioception) → fixed-rate action chunks. π0.5 predicts a subtask in language first; MolmoAct 2 reasons spatially before acting. Reasoning stays inside one forward pass.
+    - WAM, DreamZero [4] (named the family): same input → future video + the actions that produce it, from a video-diffusion backbone running closed loop. Reported to generalize to unseen environments and objects better than strong pretrained VLAs in its setting — one setting, not a general ranking.
 
     Where an agent's advantage comes from (analysis, not a proven rule):
     1. Transferable knowledge — web-scale vision-language data vs scarce, embodiment-bound robot data. But VLAs also try to inherit VLM knowledge (e.g. RT-2); what matters is whether it survives training.
@@ -144,7 +146,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [5]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [6].
+    Cited: Towards Embodied Agentic AI [6]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [7].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -172,10 +174,11 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
 ## References
 
-1. Physical Intelligence. [π0.5: a Vision-Language-Action Model with Open-World Generalization](https://proceedings.mlr.press/v305/black25a.html). Proceedings of the Conference on Robot Learning (CoRL), PMLR 305, 2025.
-2. Ai2. [MolmoAct2: Action Reasoning Models for Real-world Deployment](https://allenai.org/papers/molmoact2). 2026.
-3. S. Ye et al. [World Action Models are Zero-shot Policies](https://arxiv.org/abs/2602.15922). arXiv:2602.15922, 2026.
-4. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
-5. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-6. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+1. S. Yao et al. [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629). International Conference on Learning Representations (ICLR), 2023.
+2. Physical Intelligence. [π0.5: a Vision-Language-Action Model with Open-World Generalization](https://proceedings.mlr.press/v305/black25a.html). Proceedings of the Conference on Robot Learning (CoRL), PMLR 305, 2025.
+3. Ai2. [MolmoAct2: Action Reasoning Models for Real-world Deployment](https://allenai.org/papers/molmoact2). 2026.
+4. S. Ye et al. [World Action Models are Zero-shot Policies](https://arxiv.org/abs/2602.15922). arXiv:2602.15922, 2026.
+5. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
+6. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+7. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
 
