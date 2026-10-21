@@ -3,7 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "predev": "node scripts/check-captions.mjs --warn",
     "dev": "astro dev",
+    "prebuild": "node scripts/check-captions.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

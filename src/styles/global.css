@@ -125,7 +125,7 @@ main {
   --measure: 70rem;
 }
 
-.is-split .prose > .figure:not(.wide) {
+.is-split .prose > .figure:not(.wide):not(.is-table) {
   max-width: 48rem;
 }
 
@@ -490,19 +490,23 @@ h3 {
   border-bottom: 0;
 }
 
-/* <div class="table-compact"> around a markdown table: 0.8× size, centered. */
-.prose > .table-compact {
-  max-width: min(80%, var(--measure));
-  margin-left: auto;
-  margin-right: auto;
+/* Zebra stripes. */
+.prose tbody tr:nth-child(even) {
+  background: #f7f8f4;
 }
 
-.prose .table-compact table {
+/* <Figure kind="table" compact>: 0.8× size, centered. */
+.prose > .figure.compact,
+.is-split .prose > .figure.compact {
+  max-width: min(80%, var(--measure));
+}
+
+.prose .figure.compact table {
   font-size: 10.5px; /* 0.8 × the default 13px table text */
 }
 
-.table-compact th,
-.table-compact td {
+.figure.compact th,
+.figure.compact td {
   padding: 8px 10px;
 }
 
@@ -601,15 +605,34 @@ h3 {
 }
 
 .prose {
-  counter-reset: figure;
+  counter-reset: figure table;
 }
 
-.figure.numbered {
+.figure.numbered:not(.is-table) {
   counter-increment: figure;
+}
+
+.figure.numbered.is-table {
+  counter-increment: table;
 }
 
 .figure-counter::before {
   content: counter(figure);
+}
+
+.table-counter::before {
+  content: counter(table);
+}
+
+/* Tables: caption above, as in papers. */
+.figure.is-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.figure.is-table figcaption {
+  order: -1;
+  margin: 0 0 12px;
 }
 
 /* Paper-style caption: "Figure N  Title." in bold sans, description in serif. */

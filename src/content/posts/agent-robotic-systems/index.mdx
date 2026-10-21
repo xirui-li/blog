@@ -144,7 +144,12 @@ import Diagram from '../../../components/Diagram.astro';
 
     Surveys to cite (verify before adding to References): Towards Embodied Agentic AI (2025); Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025, v3 2026); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
-<div class="table-compact">
+<Figure
+  kind="table"
+  compact
+  title="VLA, WAM, and LLM-based agents."
+  caption="Typical roles, not a ranking: the three sit at different layers, and an agent can call a VLA as one of its skills."
+>
 
 |  | VLA | WAM | LLM-based agent |
 |---|---|---|---|
@@ -156,7 +161,7 @@ import Diagram from '../../../components/Diagram.astro';
 | Strength | Dexterous, low latency | Dynamics, new scenes | Long tasks, composing skills |
 | Limit | Scarce robot data | Compute, prediction error | Skill library, latency |
 
-</div>
+</Figure>
 
 ## Open Questions
 

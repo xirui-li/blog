@@ -5,27 +5,38 @@
 // Use `wide` to let the figure extend past the text column on large screens,
 // or `width` (px) to cap figure and caption at a size — e.g. a Diagram's
 // viewBox width, so it renders 1:1 with text the size of the body copy.
+// `kind="table"` labels it "Table N" (own numbering, caption above);
+// `compact` renders a table at 0.8× size.
 interface Props {
   caption?: string;
   title?: string;
   number?: number | string;
+  kind?: 'figure' | 'table';
+  compact?: boolean;
   wide?: boolean;
   width?: number;
   id?: string;
 }
 
-const { caption, title, number, wide = false, width, id } = Astro.props;
+const { caption, title, number, kind = 'figure', compact = false, wide = false, width, id } = Astro.props;
+const isTable = kind === 'table';
 const numbered = Boolean(title || number);
 ---
 
-<figure class:list={['figure', { wide, numbered }]} id={id} style={width ? `max-width: ${width}px` : undefined}>
+<figure
+  class:list={['figure', { wide, numbered, 'is-table': isTable, compact }]}
+  id={id}
+  style={width ? `max-width: ${width}px` : undefined}
+>
   <slot />
   {
     (caption || title || Astro.slots.has('caption')) && (
       <figcaption>
         {numbered && (
           <span class="figure-label">
-            <span class="figure-number">Figure {number ?? <span class="figure-counter" />}</span>
+            <span class="figure-number">
+              {isTable ? 'Table' : 'Figure'} {number ?? <span class={isTable ? 'table-counter' : 'figure-counter'} />}
+            </span>
             {title && <strong class="figure-title">{title}</strong>}
           </span>
         )}

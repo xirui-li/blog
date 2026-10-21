@@ -73,6 +73,8 @@ GitHub rejects files over 100 MB and Pages sites should stay under 1 GB. For lar
 
 ### Figures and diagrams
 
+Every table and image must be inside a captioned `<Figure>` — `npm run build` fails otherwise (`scripts/check-captions.mjs`; `npm run dev` only warns). Tables use `<Figure kind="table" title="…" caption="…">` (labeled "Table N", caption above, zebra-striped; add `compact` for 0.8× size) with a blank line around the markdown table.
+
 `<Figure title="Short title." caption="Longer description." width={700}>` gives a paper-style caption — "**Figure N  Short title.** Longer description." — numbered automatically in page order.
 
 `<Diagram>` draws box-and-arrow figures in the style of Meta research papers (SVG, no JavaScript):
