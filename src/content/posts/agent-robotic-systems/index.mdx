@@ -419,6 +419,46 @@ Every scheme faces the same tension: waiting for the model stalls the robot, but
 
 ## Learning: Meta-Learning, Continual Learning, and RSI
 
+Learning sits outside the loop and changes the agent itself across episodes. Three ideas are often blurred together, and they differ in what changes and over what span of time (Figure 7, Table 10). Recursive self-improvement (RSI) is the strongest claim: not only a better robot, but a better way of improving it [39]. In-context learning changes only memory, so it belongs to the [agent's memory](#memory) rather than here.
+
+<Figure
+  width={1100}
+  title="Three spans of learning."
+  caption="Each span wraps the one inside it: meta-learning learns how to adapt across tasks, continual learning accumulates skills along a task sequence without losing old ones, and RSI improves the improvement process itself across generations."
+>
+  <Diagram
+    width={1100}
+    height={290}
+    label="Nested boxes: one episode of the agent–environment loop sits inside meta-learning across tasks, which sits inside continual learning along a task sequence, which sits inside recursive self-improvement across generations."
+    groups={[
+      { x: 10, y: 10, w: 1080, h: 270, label: 'Across generations: RSI', labelPos: 'bracket' },
+      { x: 40, y: 26, w: 1020, h: 210, label: 'Along a task sequence: continual learning', labelPos: 'bracket' },
+      { x: 70, y: 42, w: 960, h: 150, label: 'Across tasks: meta-learning', labelPos: 'bracket' },
+    ]}
+    nodes={[
+      { x: 330, y: 66, w: 440, h: 62, label: 'One episode: the loop in Figure 1', kind: 'neutral', shape: 'pill' },
+      { x: 1010, y: 172, label: 'learns how to adapt to a new task', shape: 'text', align: 'end', size: 13, color: '#777' },
+      { x: 1040, y: 216, label: 'keeps old skills while adding new ones', shape: 'text', align: 'end', size: 13, color: '#777' },
+      { x: 1070, y: 260, label: 'improves the way it improves', shape: 'text', align: 'end', size: 13, color: '#777' },
+    ]}
+  />
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title="Three kinds of learning across episodes."
+  caption="Each claim needs its own evidence: a robot that eventually succeeds after many attempts has not necessarily learned anything."
+>
+
+| | What changes | Over what span | Evidence it needs | Example work |
+|---|---|---|---|---|
+| Meta-learning | The rule for adapting: an initialization, a recurrent state, or a trained in-context learner | Across tasks from a distribution | Faster adaptation on unseen tasks | MAML [40], RL² [41], ORBIT [42] |
+| Continual learning | Skills and knowledge, in weights or in a skill library | Along a sequence of tasks | New tasks learned while old ones still pass | LIBERO [43], π*0.6 [44], Simple Recipe Works [45] |
+| Recursive self-improvement | The improvement process itself | Across generations of updates | A new update rule beats the old one from the same start, on unseen tasks | EmbodiRSI [46], Hyperagents [47], PhysRSI-eval [48] |
+
+</Figure>
+
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
@@ -427,7 +467,7 @@ Every scheme faces the same tension: waiting for the model stalls the robot, but
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [39, 40].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [49, 50].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -443,7 +483,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [39]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [40].
+    Cited: Towards Embodied Agentic AI [49]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [50].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -513,5 +553,15 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 36. L. X. Shi et al. [Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models](https://arxiv.org/abs/2502.19417). International Conference on Machine Learning (ICML), 2025.
 37. Y. Chen et al. [TypeGo: An OS Runtime for Embodied Agents](https://arxiv.org/abs/2607.05482). arXiv:2607.05482, 2026.
 38. A. Ginart et al. [Asynchronous Tool Usage for Real-Time Agents](https://arxiv.org/abs/2410.21620). arXiv:2410.21620, 2024.
-39. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-40. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+39. H. Zhou et al. [Who Improves the Robot? Toward Physical Recursive Self-Improvement](https://arxiv.org/abs/2610.18842). arXiv:2610.18842, 2026.
+40. C. Finn et al. [Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks](https://proceedings.mlr.press/v70/finn17a.html). International Conference on Machine Learning (ICML), 2017.
+41. Y. Duan et al. [RL²: Fast Reinforcement Learning via Slow Reinforcement Learning](https://arxiv.org/abs/1611.02779). arXiv:1611.02779, 2016.
+42. X. Lin et al. [Scaling In-Context Online Learning Capability of LLMs via Cross-Episode Meta-RL](https://arxiv.org/abs/2602.04089). arXiv:2602.04089, 2026.
+43. B. Liu et al. [LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning](https://arxiv.org/abs/2306.03310). Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track, 2023.
+44. Physical Intelligence. [π*0.6: a VLA That Learns From Experience](https://arxiv.org/abs/2511.14759). arXiv:2511.14759, 2025.
+45. J. Hu et al. [Simple Recipe Works: Vision-Language-Action Models are Natural Continual Learners with Reinforcement Learning](https://arxiv.org/abs/2603.11653). Reinforcement Learning Conference (RLC), 2026.
+46. H. Lang et al. [EmbodiRSI: Recursive Self-Improvement for Data-Efficient Robot Adaptation](https://arxiv.org/abs/2609.38905). arXiv:2609.38905, 2026.
+47. J. Zhang et al. [Hyperagents](https://arxiv.org/abs/2603.19461). arXiv:2603.19461, 2026.
+48. Z. Li et al. [Where is Physical RSI capability from? An Observational Scaling Law of LLM-as-policy](https://arxiv.org/abs/2610.26848). arXiv:2610.26848, 2026.
+49. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+50. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
