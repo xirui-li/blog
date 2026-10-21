@@ -259,7 +259,7 @@ h3 {
 }
 
 .intro h1 {
-  font-size: 32px;
+  font-size: 40px;
   line-height: 1.2;
   letter-spacing: -1.2px;
   margin: 0 0 20px;
@@ -368,7 +368,7 @@ h3 {
 }
 
 .post-header h1 {
-  font-size: 32px;
+  font-size: 40px;
   line-height: 1.2;
   letter-spacing: -1.2px;
   margin: 0 0 25px;
@@ -442,15 +442,15 @@ h3 {
 }
 
 .prose h2 {
-  font-size: 26px;
+  font-size: 32px;
   line-height: 1.35;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.64px;
   margin-top: 3.5rem;
   margin-bottom: 1rem;
 }
 
 .prose h3 {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.4;
   letter-spacing: -0.3px;
   margin-top: 2.25rem;
@@ -742,8 +742,8 @@ h3 {
   }
   .intro h1,
   .post-header h1 {
-    font-size: 30px;
-    letter-spacing: -0.9px;
+    font-size: 36px;
+    letter-spacing: -1.08px;
   }
 }
 
@@ -780,7 +780,7 @@ h3 {
   }
   .intro h1,
   .post-header h1 {
-    font-size: 26px;
+    font-size: 28px;
     line-height: 1.25;
     letter-spacing: -0.84px;
     margin-bottom: 21px;
@@ -795,11 +795,11 @@ h3 {
     font-size: 13px;
   }
   .prose h2 {
-    font-size: 22px;
-    letter-spacing: -0.4px;
+    font-size: 27px;
+    letter-spacing: -0.54px;
   }
   .prose h3 {
-    font-size: 16px;
+    font-size: 17px;
   }
   .prose blockquote {
     font-size: 16px;
