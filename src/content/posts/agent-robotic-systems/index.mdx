@@ -17,7 +17,8 @@ import Diagram from '../../../components/Diagram.astro';
 
 {/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
     Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Inside the Agent" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning Across Episodes".
-    Thesis: the loop fits every robot policy; what differs is how each part is instantiated. Each section contrasts end-to-end models with agent systems. */}
+    Thesis: the loop fits every robot policy; what differs is how each part is instantiated. Each section contrasts end-to-end models with agent systems.
+    One paragraph to introduce what is being compared: one network can take over the whole agent box — Vision-Language-Action models (VLA, e.g. π0.5 [1], MolmoAct 2 [2]) map images + instruction to action chunks; World Action Models (WAM, e.g. DreamZero [3]) also predict the future observation. Or the agent box can be an agent system built around a VLM. The full comparison comes near the end. */}
 <Figure
   width={925}
   title="The agent–environment loop."
@@ -59,36 +60,6 @@ import Diagram from '../../../components/Diagram.astro';
     ]}
   />
 </Figure>
-
-## How the Agent Used to Be
-
-{/* A short review of end-to-end agents through their inputs and outputs — what enters the agent box in Figure 1 and what leaves it. No subsections.
-
-    1. Framing: in an end-to-end model, one network is the whole agent box. Describe it by its interface.
-
-    2. Vision-Language-Action models (VLA), e.g. π0.5 [1] and MolmoAct 2 [2].
-       - Input: camera images + a language instruction (+ proprioception).
-       - Output: low-level actions, emitted as fixed-rate action chunks.
-       - In between: π0.5 first predicts a high-level subtask in language; MolmoAct 2 reasons spatially before acting (MolmoAct2-Think adapts the depth). The reasoning stays inside one forward pass.
-
-    3. World Action Models (WAM), e.g. DreamZero [3], the paper that named the family.
-       - Input: the same as a VLA — images + instruction.
-       - Output: future video together with the actions that produce it (DreamZero: 14B autoregressive video diffusion, closed loop at 7 Hz).
-       - What changes: the agent predicts the next observation as well as the action — it carries its own model of T and Z. Claims: over 2× better generalization than state-of-the-art VLAs; transfer across embodiments from video-only demonstrations.
-
-    4. Table: family × input / output / what is inside the box.
-
-       |       | Input                          | Output                          |
-       | VLA   | images, instruction, proprio   | action chunks                   |
-       | WAM   | images, instruction            | future video + action chunks    |
-
-    5. What both leave out (sets up the rest of the post):
-       - the input is the latest frames — no memory M beyond a short window;
-       - the output is a low-level command — no result comes back from an action, so failure shows up only indirectly in the next image;
-       - one step is one control tick, not "one action with an outcome";
-       - prior knowledge K lives in the weights — adapting means retraining.
-
-    Figure idea: Figure 1's agent box collapsed into a single "VLA / WAM" block, with only its input (images, instruction) and output (action chunks; + future video for WAM) drawn. */}
 
 ## Task: Instruction and Prior Knowledge
 
@@ -154,6 +125,34 @@ import Diagram from '../../../components/Diagram.astro';
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
     - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [4]) — it is covered under Task (K) and Inside the Agent (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
+
+## End-to-End vs. Agent Systems
+
+{/* Framing: the three are not on the same layer. A VLM-driven agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "VLM agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
+
+    Background on the end-to-end families (inputs and outputs):
+    - VLA, π0.5 [1] / MolmoAct 2 [2]: images + instruction (+ proprioception) → fixed-rate action chunks. π0.5 predicts a subtask in language first; MolmoAct 2 reasons spatially before acting. Reasoning stays inside one forward pass.
+    - WAM, DreamZero [3] (named the family): same input → future video + the actions that produce it; 14B autoregressive video diffusion, closed loop at 7 Hz. Reported: 62.2% vs 27.4% average task progress over the strongest pretrained VLA on AgiBot G1 (seen tasks, unseen environments and objects) — task progress, not full success; one setting only. TODO: verify these numbers in the paper.
+
+    Where an agent's advantage comes from (analysis, not a proven rule):
+    1. Transferable knowledge — web-scale vision-language data vs scarce, embodiment-bound robot data. But VLAs also try to inherit VLM knowledge (e.g. RT-2); what matters is whether it survives training.
+    2. Composing existing skills — a new task becomes a new combination of reliable skills. Bounded by the skill library: a correct plan cannot open a bottle without a bottle-opening skill.
+    3. Runtime mechanisms, not the model — keeping history, checking real outcomes, replanning. These can be added around a VLA too. Explaining a failure is not the same as detecting one; checks must rest on environment feedback.
+    4. Versus WAM — task-level reasoning may be enough when the question is ordering ("clear the cups or wipe the table first?"); predicting future states helps more with contact, sliding, and novel motions, at extra compute and compounding prediction error.
+
+    What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
+
+    Surveys to cite (verify before adding to References): Towards Embodied Agentic AI (2025); Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025, v3 2026); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
+
+|  | VLM-driven agent | VLA | WAM |
+|---|---|---|---|
+| Question it answers | What to do next, and with which skill? | How should the robot move next? | What will happen if I act, and how do I reach the goal? |
+| Input | Images, instruction, memory, tool results | Images, instruction, proprioception | Images, instruction |
+| Output | Subtasks, skill calls, programs | Low-level action chunks | Predicted future (video or latent) and action chunks |
+| Knowledge comes from | Web-scale vision-language pretraining, used directly | A VLM backbone, if it survives robot fine-tuning | Video and action data, learning physical dynamics |
+| Memory and feedback | Keeps history, checks results, replans | Short observation window, no explicit check | Predicts outcomes, but does not check them |
+| Strong at | Composing existing skills for new, long tasks | Smooth, dexterous, low-latency control | New scenes; contact and dynamics |
+| Limited by | The skill library and its interfaces; reasoning latency | Scarce, embodiment-specific robot data | Compute cost and compounding prediction error |
 
 ## Open Questions
 
