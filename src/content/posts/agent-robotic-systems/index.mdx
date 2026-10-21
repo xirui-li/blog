@@ -329,12 +329,12 @@ Once the model is in the loop, how much each decision delegates also varies wide
 
 ### Memory
 
-In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules decide what is written, kept, read, and forgotten (Figure 5, Table 8). Coding agents already work this way: Claude Code loads CLAUDE.md files into every session and compacts the conversation into a summary when the context fills up [29], and Codex reads AGENTS.md instruction files from the project before every task [30].
+In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules write, update, and delete what it remembers, and decide what the model reads (Figure 5, Table 8). Coding agents already work this way: Claude Code loads CLAUDE.md files into every session and compacts the conversation into a summary when the context fills up [29], and Codex reads AGENTS.md instruction files from the project before every task [30].
 
 <Figure
   width={1100}
   title="Memory inside the model, or in the harness."
-  caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness sits between the model and the robot. It writes observations, tool receipts, and every executed action into memory M, keeps, forgets, or compresses them by rule, and builds the context the model reads."
+  caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness sits between the model and the robot. It writes observations, tool receipts, and every executed action into memory M, updates or deletes entries by rule, and builds the context the model reads."
 >
   <Diagram
     width={1100}
@@ -351,7 +351,7 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
       { id: 'i_robot', x: 120, y: 220, w: 180, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
       { id: 'e_vlm', x: 770, y: 56, w: 140, h: 44, label: 'VLM', kind: 'engine' },
       { id: 'e_mem', x: 765, y: 168, w: 150, h: 44, label: 'Memory M', kind: 'source' },
-      { x: 755, y: 228, w: 170, h: 26, label: 'keep · forget · compress', kind: 'tag', shape: 'pill', size: 13 },
+      { x: 755, y: 228, w: 170, h: 26, label: 'update · delete', kind: 'tag', shape: 'pill', size: 13 },
       { id: 'e_robot', x: 470, y: 168, w: 100, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
     ]}
     edges={[
@@ -368,17 +368,15 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 <Figure
   kind="table"
   compact
-  title="Memory as harness rules."
-  caption="Each rule is a design choice the harness makes explicit; in an end-to-end policy the same choices are fixed by the architecture and training."
+  title="Write, update, delete."
+  caption="The three memory operations a harness makes explicit; in an end-to-end policy the same choices are fixed by the architecture and training. Reading builds the model's context from what remains (Figure 5)."
 >
 
-| Rule | Implicit (end-to-end) | Explicit (harness) | Example |
+| Operation | Implicit (end-to-end) | Explicit (harness) | Example |
 |---|---|---|---|
-| Write | Training data, through the weights | Every action and its receipt, as a record | Observation, action, receipt records in RoboICL [16] |
-| Keep | A fixed window of recent frames | Bounded memory: demonstrations plus recent interactions | RoboICL's anchored memory [16] |
-| Read | The whole window, every step | Context built for the current step, including retrieved experience | Harness VLA retrieves memory from exploration [28] |
-| Forget | Whatever falls out of the window | Compress or drop by rule, keeping what matters for the task | GPT-Policy's context compiler [15]; compaction in Claude Code [29] |
-| Persist | One episode; lasting change only by retraining | Across steps, episodes, or tasks | Harness VLA reuses exploration memory [28]; CLAUDE.md [29] and AGENTS.md [30] |
+| Write | New frames enter a fixed window; lasting change only through training | Append each observation, tool receipt, and executed action as a record | Observation, action, receipt records in RoboICL [16] |
+| Update | Hidden state overwritten every step; weights change only by retraining | Revise an entry when the world or the rules change, such as a belief, a summary, or a written rule | Editing CLAUDE.md or AGENTS.md as rules change [29, 30] |
+| Delete | Frames fall out of the window | Drop or compress by rule, keeping what matters for the task | GPT-Policy's context compiler [15]; compaction in Claude Code [29] |
 
 </Figure>
 
