@@ -11,6 +11,7 @@ draft: true          # remove when ready to publish
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
 import ActionForms from '../../../components/ActionForms.astro';
+import TimelineCompare from '../../../components/TimelineCompare.astro';
 
 {/* Opening: the one-paragraph thesis. The agent–environment loop fits every robot policy; what separates end-to-end models from agent systems is how each part of the loop is instantiated. */}
 
@@ -381,6 +382,34 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 
 ## Time: Steps, Chunks, and Asynchrony
 
+Every scheme faces the same tension: waiting for the model stalls the robot, but acting without waiting follows a stale plan. Figure 6 compares five ways of handling it, and Table 9 lists them with representative work. Whether the world pauses while the model thinks changes the picture: RobotWorld pauses the simulator during reasoning [20], while Embodied First Exam can also keep the world running on a wall clock [17].
+
+<Figure
+  width={1100}
+  title="Who waits for whom."
+  caption="Five schemes over the same stretch of time. Yellow: the model thinking; teal: the robot acting, drawn as dense ticks for fast control; shaded: the robot idle. Switch the world between paused and running to see when idle time costs."
+>
+  <TimelineCompare />
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title="How thinking and acting share time."
+  caption="End-to-end models and agent systems resolve the same tension; the last two rows are agent-side schemes."
+>
+
+| Scheme | While the model thinks | Example |
+|---|---|---|
+| Stop and think | The robot waits; thinking and acting alternate | Diffusion Policy [31], ReAct [1] |
+| Smoothed chunks | Still waits, but overlapping chunk predictions are blended at the boundaries | ACT [32] |
+| Next chunk while acting | The robot keeps executing; the new chunk is spliced in when it arrives | RTC [33], SmolVLA [34] |
+| Slow brain, fast body | A slow reasoner updates a plan that a fast controller always follows | Helix [35], Hi Robot [36] |
+| Write a program, then run | The model writes code once; the code runs the fast loop | Code as Policies [21] |
+| Async agent with preemption | Skills run in the background; events interrupt and replace them | TypeGo [37], asynchronous tool use [38] |
+
+</Figure>
+
 {/* Figure 1: "t = 0, 1, 2, …" — the time structure of the agent–environment loop.
     - Commitment horizon: how long one decision is executed before looking again — single step → action chunk → skill (a skill is a nested inner loop inside a_t).
     - Sync vs async: does the policy wait while a_t executes, or keep running? (async chunked inference ↔ agents monitoring background skills)
@@ -398,7 +427,7 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [31, 32].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [39, 40].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -414,7 +443,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [31]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [32].
+    Cited: Towards Embodied Agentic AI [39]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [40].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -476,5 +505,13 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 28. Y. Zhang et al. [Harness VLA: Steering Frozen VLAs into Reliable Manipulation Primitives via Memory-Guided Agents](https://arxiv.org/abs/2607.08448). arXiv:2607.08448, 2026.
 29. Anthropic. [How Claude remembers your project](https://code.claude.com/docs/en/memory). Claude Code documentation, 2026.
 30. OpenAI. [Custom instructions with AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md). Codex documentation, 2026.
-31. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-32. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+31. C. Chi et al. [Diffusion Policy: Visuomotor Policy Learning via Action Diffusion](https://arxiv.org/abs/2303.04137). Robotics: Science and Systems (RSS), 2023.
+32. T. Z. Zhao et al. [Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware](https://arxiv.org/abs/2304.13705). Robotics: Science and Systems (RSS), 2023.
+33. K. Black et al. [Real-Time Execution of Action Chunking Flow Policies](https://arxiv.org/abs/2506.07339). Neural Information Processing Systems (NeurIPS), 2025.
+34. M. Shukor et al. [SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics](https://arxiv.org/abs/2506.01844). arXiv:2506.01844, 2025.
+35. Figure AI. [Helix: A Vision-Language-Action Model for Generalist Humanoid Control](https://www.figure.ai/news/helix). Blog post, 2025.
+36. L. X. Shi et al. [Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models](https://arxiv.org/abs/2502.19417). International Conference on Machine Learning (ICML), 2025.
+37. Y. Chen et al. [TypeGo: An OS Runtime for Embodied Agents](https://arxiv.org/abs/2607.05482). arXiv:2607.05482, 2026.
+38. A. Ginart et al. [Asynchronous Tool Usage for Real-Time Agents](https://arxiv.org/abs/2410.21620). arXiv:2410.21620, 2024.
+39. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+40. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.

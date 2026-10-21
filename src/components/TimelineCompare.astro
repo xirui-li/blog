@@ -1,0 +1,305 @@
+---
+// Animated comparison of how thinking (model) and acting (robot) share time
+// under five schemes. A playhead sweeps left to right and reveals each lane;
+// the "world" toggle restyles idle time: free when the world pauses, costly
+// when it keeps running.
+type Span = [number, number];
+interface Row {
+  name: string;
+  think: Span[];
+  act: Span[];
+  idle: Span[];
+  marks?: number[]; // a new plan arrives
+  event?: number; // an interrupt
+  dense?: boolean; // fast control drawn as ticks
+}
+
+const T = 12; // time units across the strip
+const rows: Row[] = [
+  { name: 'Stop and think', think: [[0, 2], [4, 6], [8, 10]], act: [[2, 4], [6, 8], [10, 12]], idle: [[0, 2], [4, 6], [8, 10]] },
+  {
+    name: 'Next chunk while acting',
+    think: [[0, 2], [2, 4], [4, 6], [6, 8], [8, 10], [10, 12]],
+    act: [[2, 4], [4, 6], [6, 8], [8, 10], [10, 12]],
+    idle: [[0, 2]],
+    marks: [4, 6, 8, 10],
+  },
+  { name: 'Slow brain, fast body', think: [[0, 3], [3, 6], [6, 9], [9, 12]], act: [[0.6, 12]], idle: [[0, 0.6]], marks: [3, 6, 9], dense: true },
+  { name: 'Write a program, then run', think: [[0, 3]], act: [[3, 12]], idle: [[0, 3]], dense: true },
+  { name: 'Async agent with preemption', think: [[0, 12]], act: [[1, 5], [5.4, 12]], idle: [[0, 1]], event: 5 },
+];
+
+const W = 1100;
+const X0 = 250; // lanes start
+const X1 = 1080;
+const ROW = 74;
+const TOP = 30;
+const H = TOP + rows.length * ROW + 34;
+const x = (t: number) => X0 + ((X1 - X0) * t) / T;
+const uid = Math.random().toString(36).slice(2, 8);
+const ticks = (a: number, b: number) => {
+  const out: number[] = [];
+  for (let t = a; t < b - 0.05; t += 0.18) out.push(t);
+  return out;
+};
+---
+
+<timeline-compare class="tl" data-total={T} data-x0={X0} data-x1={X1}>
+  <div class="tl-controls">
+    <span class="tl-label">World</span>
+    <div class="tl-seg">
+      <button type="button" data-world="paused" aria-pressed="true">Paused while the model thinks</button>
+      <button type="button" data-world="running" aria-pressed="false">Keeps running</button>
+    </div>
+    <span class="tl-status" aria-live="polite">Idle time is free: the world waits for the model.</span>
+  </div>
+
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Five timelines comparing when the model thinks and when the robot acts: stop and think, next chunk while acting, slow brain and fast body, write a program then run, and an async agent with preemption.">
+    <defs>
+      <clipPath id={`${uid}-reveal`}>
+        <rect class="tl-reveal" x="0" y="0" width={W} height={H}></rect>
+      </clipPath>
+      <pattern id={`${uid}-hatch`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="#f1f1ee"></rect>
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#d6d6d0" stroke-width="2"></line>
+      </pattern>
+    </defs>
+
+    <!-- time axis -->
+    <line x1={X0} y1={TOP - 10} x2={X1} y2={TOP - 10} class="tl-axis"></line>
+    <text x={X1} y={TOP - 16} text-anchor="end" class="tl-axis-label">time →</text>
+
+    {
+      rows.map((r, i) => {
+        const y = TOP + i * ROW;
+        return (
+          <g>
+            <text x="0" y={y + 30} class="tl-row-name">{r.name}</text>
+            <text x={X0 - 12} y={y + 17} text-anchor="end" class="tl-lane">think</text>
+            <text x={X0 - 12} y={y + 41} text-anchor="end" class="tl-lane">act</text>
+            <line x1={X0} y1={y + ROW - 8} x2={X1} y2={y + ROW - 8} class="tl-rule" />
+            <g clip-path={`url(#${uid}-reveal)`}>
+              {r.idle.map(([a, b]) => (
+                <rect class="tl-idle" x={x(a)} y={y + 30} width={x(b) - x(a)} height="16" rx="3" fill={`url(#${uid}-hatch)`} />
+              ))}
+              {r.think.map(([a, b]) => (
+                <rect class="tl-think" x={x(a) + 1} y={y + 6} width={x(b) - x(a) - 2} height="16" rx="4" />
+              ))}
+              {r.dense
+                ? r.act.flatMap(([a, b]) => ticks(a, b)).map((t, k) => {
+                    const phase = (r.marks ?? []).filter((m) => m <= t).length;
+                    return <rect class={`tl-tick tl-phase-${phase % 2}`} x={x(t)} y={y + 30} width="5" height="16" rx="1" />;
+                  })
+                : r.act.map(([a, b]) => <rect class="tl-act" x={x(a) + 1} y={y + 30} width={x(b) - x(a) - 2} height="16" rx="4" />)}
+              {(r.marks ?? []).map((m) => (
+                <path class="tl-mark" d={`M${x(m)} ${y + 24} L${x(m)} ${y + 50}`} />
+              ))}
+              {r.event !== undefined && (
+                <g>
+                  <path class="tl-cut" d={`M${x(r.event)} ${y + 26} L${x(r.event)} ${y + 50}`} />
+                  <circle cx={x(r.event)} cy={y + 60} r="8" class="tl-event" />
+                  <text x={x(r.event)} y={y + 64} text-anchor="middle" class="tl-event-text">!</text>
+                  <text x={x(r.event) + 14} y={y + 64} class="tl-note">event: replace the skill</text>
+                </g>
+              )}
+            </g>
+          </g>
+        );
+      })
+    }
+
+    <line class="tl-playhead" x1={X0} y1={TOP - 14} x2={X0} y2={H - 30}></line>
+
+    <!-- legend -->
+    <g transform={`translate(${X0} ${H - 18})`}>
+      <rect width="16" height="10" rx="3" class="tl-think"></rect>
+      <text x="22" y="9" class="tl-legend">model thinking</text>
+      <rect x="140" width="16" height="10" rx="3" class="tl-act"></rect>
+      <text x="162" y="9" class="tl-legend">robot acting</text>
+      <rect x="270" width="16" height="10" rx="3" class="tl-idle" fill={`url(#${uid}-hatch)`}></rect>
+      <text x="292" y="9" class="tl-legend tl-idle-legend">robot idle: world waits</text>
+      <path d="M460 -1 L460 11" class="tl-mark"></path>
+      <text x="468" y="9" class="tl-legend">new plan arrives</text>
+    </g>
+  </svg>
+</timeline-compare>
+
+<style>
+  .tl svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--sans);
+  }
+
+  .tl-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 8px;
+  }
+
+  .tl-label {
+    font-size: 11px;
+    letter-spacing: 0.72px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tl-seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+  }
+
+  .tl-seg button {
+    font: 12px/1.4 var(--sans);
+    padding: 6px 11px;
+    border: 0;
+    border-radius: 3px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .tl-seg button[aria-pressed='true'] {
+    background: #f1f2ee;
+    color: var(--ink);
+  }
+
+  .tl-status {
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .tl-axis,
+  .tl-rule {
+    stroke: #e4e4df;
+    stroke-width: 1;
+  }
+
+  .tl-axis-label,
+  .tl-lane,
+  .tl-legend,
+  .tl-note {
+    font-size: 12px;
+    fill: var(--muted);
+  }
+
+  .tl-row-name {
+    font-size: 14px;
+    font-weight: 500;
+    fill: #1f1f1f;
+  }
+
+  .tl-think {
+    fill: #fff3ae;
+    stroke: #f3d24a;
+    stroke-width: 1.5;
+  }
+
+  .tl-act {
+    fill: #c9e7e5;
+    stroke: #5cb3a9;
+    stroke-width: 1.5;
+  }
+
+  .tl-tick.tl-phase-0 {
+    fill: #5cb3a9;
+  }
+
+  .tl-tick.tl-phase-1 {
+    fill: #2f8a80;
+  }
+
+  .tl-idle {
+    stroke: #d6d6d0;
+    stroke-width: 1;
+  }
+
+  .tl-mark {
+    stroke: #8f87c7;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .tl-cut {
+    stroke: #c0392b;
+    stroke-width: 2.5;
+    stroke-dasharray: 3 3;
+  }
+
+  .tl-event {
+    fill: #c0392b;
+  }
+
+  .tl-event-text {
+    font-size: 12px;
+    font-weight: 700;
+    fill: #fff;
+  }
+
+  .tl-playhead {
+    stroke: #1f1f1f;
+    stroke-width: 1.5;
+    opacity: 0.6;
+  }
+
+  /* Running world: idle time is costly. */
+  .tl[data-world='running'] .tl-idle {
+    fill: #f6d3cc !important;
+    stroke: #c0392b;
+  }
+</style>
+
+<script>
+  class TimelineCompare extends HTMLElement {
+    connectedCallback() {
+      const reveal = this.querySelector<SVGRectElement>('.tl-reveal')!;
+      const playhead = this.querySelector<SVGLineElement>('.tl-playhead')!;
+      const status = this.querySelector<HTMLSpanElement>('.tl-status')!;
+      const idleLegend = this.querySelector<SVGTextElement>('.tl-idle-legend')!;
+      const x0 = Number(this.dataset.x0);
+      const x1 = Number(this.dataset.x1);
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const SWEEP = 9000;
+      const HOLD = 1500;
+      this.dataset.world = 'paused';
+
+      const draw = (px: number) => {
+        reveal.setAttribute('width', String(px));
+        playhead.setAttribute('x1', String(px));
+        playhead.setAttribute('x2', String(px));
+      };
+
+      if (reduced) {
+        draw(x1);
+      } else {
+        let start = performance.now();
+        const frame = (now: number) => {
+          const t = (now - start) % (SWEEP + HOLD);
+          draw(x0 + (x1 - x0) * Math.min(1, t / SWEEP));
+          requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }
+
+      this.querySelectorAll<HTMLButtonElement>('[data-world]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const world = btn.dataset.world!;
+          this.dataset.world = world;
+          this.querySelectorAll('[data-world]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+          status.textContent =
+            world === 'paused'
+              ? 'Idle time is free: the world waits for the model.'
+              : 'Idle time is costly: the world keeps moving while the robot waits.';
+          idleLegend.textContent = world === 'paused' ? 'robot idle: world waits' : 'robot idle: world moves on';
+        }),
+      );
+    }
+  }
+  customElements.define('timeline-compare', TimelineCompare);
+</script>
