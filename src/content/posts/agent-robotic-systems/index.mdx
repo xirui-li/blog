@@ -1,6 +1,6 @@
 ---
 title: 'Agent Robotic Systems'
-description: 'How LLM-based agents perceive, plan, act, and recover in the physical world.'
+description: 'One loop, many ways to build it: from end-to-end policies to agent systems for robots.'
 date: 2026-10-21
 authors: ['Xirui Li']
 tags: ['robotics', 'agents']
@@ -14,9 +14,11 @@ import TimelineCompare from '../../../components/TimelineCompare.astro';
 
 {/* Opening: the one-paragraph thesis. The agent–environment loop fits every robot policy; what separates end-to-end models from agent systems is how each part of the loop is instantiated. */}
 
+Robot policies are usually discussed by architecture: an end-to-end model on one side, an agent built around a language model on the other. This post takes a different cut. It walks through one agent–environment loop part by part and asks, at each part, how end-to-end models and LLM-based agents differ, and where they can be combined.
+
 ## The Agent–Environment Loop
 
-Every robot policy can be read as the same loop: an agent receives a [task](#task-instruction-and-prior-knowledge), [acts on its environment, and observes what happens](#interface-observation-and-action-spaces). An LLM-based agent makes this loop explicit, [reasoning about what it knows](#agent-policy-and-memory), acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post, from the loop's [timing](#time-steps-chunks-and-asynchrony) to [learning across episodes](#learning-meta-learning-continual-learning-and-rsi) and how [VLAs, WAMs, and LLM-based agents](#vla-vs-wam-vs-llm-based-agent) fill it in.
+Every robot policy can be read as the same loop: an agent receives a [task](#task-instruction-and-prior-knowledge), [acts on its environment, and observes what happens](#interface-observation-and-action-spaces). An LLM-based agent, which here covers both VLM agents that act through tools and coding agents that write programs, makes this loop explicit, [reasoning about what it knows](#agent-policy-and-memory), acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post, from the loop's [timing](#time-steps-chunks-and-asynchrony) to [learning across episodes](#learning-meta-learning-continual-learning-and-rsi) and how [VLAs, WAMs, and LLM-based agents](#vla-vs-wam-vs-llm-based-agent) fill it in.
 
 {/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
     Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Agent: Policy and Memory" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning".
@@ -96,12 +98,12 @@ Other formats trade that ease for precision (Table 1). A goal image shows the fi
 The bigger difference is who reads the instruction. An end-to-end policy accepts only the formats it was trained on; adding sketches or videos means new data and retraining. An LLM-based agent can take anything it can read in context, such as text, images, rules, or a demonstration, and can ask a clarifying question when the instruction is ambiguous.
 
 {/* Writing outline (from the research notes):
-    - The default is natural language: short imperatives for VLAs (RT-1, RT-2, OpenVLA, π0/π0.5) and a text prompt for VLM agents.
+    - The default is natural language: short imperatives for VLAs (RT-1, RT-2, OpenVLA, π0/π0.5) and a text prompt for LLM-based agents.
     - A spectrum of specificity: language is cheap but ambiguous and spatially vague; goal images and videos are precise but over-specified, and someone often has to do the task first; sketches, trajectories, and points sit in between — spatially grounded but sparse (RT-Sketch's argument).
     - What an instruction specifies: the goal (what), the process (how), or constraints (what not to do).
     - Formal specifications trade naturalness for verifiability: an LLM translates, a solver executes or checks (LLM+P; Lang2LTL; AutoTAMP). This is the main route for enforcing constraints (Safety Chip; RoboGuard; ASIMOV's natural-language "constitutions").
     - Instructions can be compiled into something else before they reach a policy: reward code (Eureka, Text2Reward, Language to Rewards), policy code (Code as Policies, ProgPrompt), or intermediate language and visual traces (RT-H language motions, π0.5 subtasks, HAMSTER paths).
-    - VLA vs VLM agent: a VLA's instruction channel is fixed at training time — a new modality means new data and retraining (RT-Sketch, RT-Trajectory, GR-MG). A VLM agent accepts anything readable in context — rules, marked-up images, PDDL, dialogue — at the cost of weaker grounding to low-level control.
+    - VLA vs LLM-based agent: a VLA's instruction channel is fixed at training time — a new modality means new data and retraining (RT-Sketch, RT-Trajectory, GR-MG). An LLM-based agent accepts anything readable in context — rules, marked-up images, PDDL, dialogue — at the cost of weaker grounding to low-level control.
     - Interaction: clarifying questions for ambiguous instructions (KnowNo), closed-loop feedback (Inner Monologue), corrections mid-execution (Interactive Language, RT-H, YAY Robot, OLAF). In Figure 1, g is set once per episode; corrections arrive as observations, since the person is part of the environment.
     - Survey listing task-specification modalities: Hu et al. 2023, arXiv:2312.08782.
 
@@ -142,7 +144,7 @@ What the agent may see sets how hard the same task is (Table 3), and even a "suc
   caption="Simulation can expose privileged state that a real robot never has; Embodied First Exam evaluates agents with and without it [17]."
 >
 
-| Level | Example | VLA | WAM | VLM agent |
+| Level | Example | VLA | WAM | LLM-based agent |
 |---|---|---|---|---|
 | Images | RGB from one or more cameras | Yes | Yes | Yes |
 | Robot state | Joint angles, end-effector pose, depth | Usually | Usually | As text, through tools |
@@ -514,8 +516,8 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
 1. **How do we reduce the latency of agent systems?** Each reasoning step is far slower than a control loop, so the agent has to decide [how long to commit and whether to keep thinking while it acts](#time-steps-chunks-and-asynchrony).
 2. **How do agent systems handle fine-grained manipulation?** An agent is only as dexterous as the skills it can call; contact-rich tasks may need [VLA or WAM policies as skills](#vla-vs-wam-vs-llm-based-agent).
-3. **What is the right harness interface for VLM agents?** What the agent observes, how skills are described, and what each call returns together define [the interface](#interface-observation-and-action-spaces) it reasons over.
-4. **Could we build MCP servers for robotics?** The [Model Context Protocol](https://modelcontextprotocol.io) standardizes how LLM agents connect to tools and data; robot skills and sensors could be exposed the same way.
+3. **What is the right harness interface for LLM-based agents?** What the agent observes, how skills are described, and what each call returns together define [the interface](#interface-observation-and-action-spaces) it reasons over.
+4. **Could we build MCP servers for robotics?** The [Model Context Protocol](https://modelcontextprotocol.io) standardizes how LLM-based agents connect to tools and data; robot skills and sensors could be exposed the same way.
 5. **How do we define physical intelligence?** The term is used everywhere but rarely pinned down: is it dexterity, an understanding of physics, or [the whole loop](#the-agentenvironment-loop) working well under real-world uncertainty?
 
 ## References
