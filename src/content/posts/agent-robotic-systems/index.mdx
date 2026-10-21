@@ -334,7 +334,7 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 <Figure
   width={1100}
   title="Memory inside the model, or in the harness."
-  caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness keeps memory M outside the model and controls it with explicit rules; the model only sees what the read rule puts in its context."
+  caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness sits between the model and the robot. It writes observations, tool receipts, and every executed action into memory M, keeps, forgets, or compresses them by rule, and builds the context the model reads."
 >
   <Diagram
     width={1100}
@@ -344,21 +344,23 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
     groups={[
       { x: 10, y: 40, w: 400, h: 250, label: 'Implicit: inside the model' },
       { x: 450, y: 40, w: 640, h: 250, label: 'Explicit: in the harness' },
+      { x: 610, y: 128, w: 460, h: 150, label: 'Harness', labelPos: 'bracket' },
     ]}
     nodes={[
       { id: 'i_vla', x: 120, y: 70, w: 180, h: 60, label: 'VLA\nweights + last frames', kind: 'decoder' },
       { id: 'i_robot', x: 120, y: 220, w: 180, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { id: 'e_vlm', x: 730, y: 70, w: 150, h: 50, label: 'VLM', kind: 'engine' },
-      { id: 'e_mem', x: 730, y: 215, w: 150, h: 50, label: 'Memory M', kind: 'source' },
-      { id: 'e_robot', x: 475, y: 218, w: 105, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { x: 900, y: 225, w: 175, label: 'keep · forget · compress', kind: 'tag', shape: 'pill' },
+      { id: 'e_vlm', x: 770, y: 56, w: 140, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'e_mem', x: 765, y: 168, w: 150, h: 44, label: 'Memory M', kind: 'source' },
+      { x: 755, y: 228, w: 170, h: 26, label: 'keep · forget · compress', kind: 'tag', shape: 'pill', size: 13 },
+      { id: 'e_robot', x: 470, y: 168, w: 100, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
     ]}
     edges={[
       { from: 'i_robot', to: 'i_vla', fromAt: 0.22, toAt: 0.22, label: 'frames', step: 0 },
       { from: 'i_vla', to: 'i_robot', fromAt: 0.78, toAt: 0.78, label: 'actions', step: 1 },
-      { from: 'e_robot', to: 'e_mem', label: 'write: receipt', step: 0 },
+      { from: 'e_robot', to: 'e_mem', label: 'write: obs, receipt', step: 0 },
       { from: 'e_mem', to: 'e_vlm', label: 'read: context', step: 1 },
-      { from: 'e_vlm', to: 'e_robot', fromSide: 'left', toSide: 'top', label: 'action', step: 2 },
+      { from: 'e_vlm', to: 'e_robot', fromSide: 'left', toSide: 'top', label: 'action', labelAt: 0.4, step: 2 },
+      { from: 'e_vlm', to: 'e_mem', fromSide: 'right', toSide: 'right', via: [[990, 78], [990, 190]], label: 'write: action', labelAt: 0.62, step: 2 },
     ]}
   />
 </Figure>
@@ -428,7 +430,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 |  | VLA | WAM | LLM-based agent |
 |---|---|---|---|
 | Role | How to move next | What happens if I act | What to do next |
-| Input | Images, instruction, proprio | Images, instruction | Images, instruction, memory, tool results |
+| Input | Images, instruction, robot state | Images, instruction | Images, instruction, memory, tool results |
 | Output | Action chunks | Future frames + actions | Tool calls, programs |
 | Knowledge | VLM backbone + robot data | Video + action data | Agentic + coding post-training |
 | Memory / feedback | Short window, no check | Predicts, no check | History, checks, replans |
