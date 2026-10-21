@@ -242,39 +242,39 @@ The action space is what the VLM literally emits across the interface. It takes 
 The same VLM can be wired into a policy in different ways. Astranomy compares three on the same robot tasks [19]: the model can act directly, emitting a stretch of actions and then looking again; act as an agent, sending one target at a time through a tool and reading the feedback; or supervise another policy, accepting or editing the actions it proposes (Figure 3). In that evaluation the agentic setup did best, and supervising another policy did not clearly beat acting directly. How the model is wired into the loop matters as much as the model itself.
 
 <Figure
-  width={1100}
+  width={860}
   title="Three ways to wire a VLM into the loop."
   caption="Direct: the model emits a chunk of actions, then looks again. Agentic: it sends one target at a time through a tool and reads the feedback. Orchestrated: another policy proposes actions and the model checks them. Modes from Astranomy [19]."
 >
   <Diagram
-    width={1100}
+    width={860}
     height={300}
     animate
     label="Three small loops. Direct: the VLM sends an action chunk to the robot and gets a new image back. Agentic: the VLM sends one target to a tool, the tool moves the robot, and feedback returns to the VLM. Orchestrated: another policy proposes an action, the VLM checks it and sends it to the robot, and the image returns to the other policy."
     groups={[
-      { x: 10, y: 40, w: 330, h: 250, label: 'Direct: actor' },
-      { x: 385, y: 40, w: 330, h: 250, label: 'Agentic: agent in a loop' },
-      { x: 760, y: 40, w: 330, h: 250, label: 'Orchestrated: supervisor' },
+      { x: 10, y: 40, w: 270, h: 250, label: 'Direct: actor' },
+      { x: 295, y: 40, w: 270, h: 250, label: 'Agentic: agent in a loop' },
+      { x: 580, y: 40, w: 270, h: 250, label: 'Orchestrated: supervisor' },
     ]}
     nodes={[
-      { id: 'd_vlm', x: 120, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
-      { id: 'd_robot', x: 120, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { id: 'a_vlm', x: 495, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
-      { id: 'a_tool', x: 495, y: 145, w: 110, h: 44, label: 'Tool', kind: 'model' },
-      { id: 'a_robot', x: 495, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { id: 'o_pol', x: 775, y: 60, w: 104, h: 44, label: 'Other policy', kind: 'decoder' },
-      { id: 'o_vlm', x: 985, y: 60, w: 90, h: 44, label: 'VLM', kind: 'engine' },
-      { id: 'o_robot', x: 985, y: 230, w: 90, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'd_vlm', x: 50, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'd_robot', x: 50, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'a_vlm', x: 335, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'a_tool', x: 335, y: 145, w: 110, h: 44, label: 'Tool', kind: 'model' },
+      { id: 'a_robot', x: 335, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'o_pol', x: 665, y: 60, w: 130, h: 44, label: 'Other policy', kind: 'decoder' },
+      { id: 'o_vlm', x: 665, y: 145, w: 130, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'o_robot', x: 665, y: 230, w: 130, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
     ]}
     edges={[
       { from: 'd_vlm', to: 'd_robot', label: 'action chunk', step: 0 },
-      { from: 'd_robot', to: 'd_vlm', fromSide: 'right', toSide: 'right', via: [[300, 252], [300, 82]], label: 'new image', step: 1 },
+      { from: 'd_robot', to: 'd_vlm', fromSide: 'right', toSide: 'right', via: [[215, 252], [215, 82]], label: 'new image', step: 1 },
       { from: 'a_vlm', to: 'a_tool', label: 'one target', step: 0 },
       { from: 'a_tool', to: 'a_robot', step: 1 },
-      { from: 'a_robot', to: 'a_vlm', fromSide: 'right', toSide: 'right', via: [[675, 252], [675, 82]], label: 'feedback', step: 2 },
+      { from: 'a_robot', to: 'a_vlm', fromSide: 'right', toSide: 'right', via: [[505, 252], [505, 82]], label: 'feedback', step: 2 },
       { from: 'o_pol', to: 'o_vlm', label: 'proposal', step: 0 },
       { from: 'o_vlm', to: 'o_robot', label: 'checked action', step: 1 },
-      { from: 'o_robot', to: 'o_pol', fromSide: 'left', toSide: 'bottom', label: 'image', step: 2 },
+      { from: 'o_robot', to: 'o_pol', fromSide: 'left', toSide: 'left', via: [[620, 252], [620, 82]], label: 'image', step: 2 },
     ]}
   />
 </Figure>
@@ -426,30 +426,30 @@ Every scheme faces the same tension: waiting for the model stalls the robot, but
 Learning sits outside the loop: experience from many episodes updates the policy π and memory M, and the improved agent goes back into new episodes (Figure 7). Meta-learning, continual learning, and recursive self-improvement (RSI) are names for this one process from different communities [39]; what separates them is the question asked of it (Table 10). In-context learning changes only memory, so it belongs to the [agent's memory](#memory) rather than here.
 
 <Figure
-  width={1000}
+  width={860}
   title="One learning process."
   caption="Experience from many episodes updates π and M, and the better agent runs new episodes. The three questions below are three ways to check that this loop actually improves the agent."
 >
   <Diagram
-    width={1000}
+    width={860}
     height={260}
     animate
     label="A loop: experience from many episodes goes to an update of the policy and memory, which produces a better agent, which runs the next episodes. Below, three questions: does it adapt faster, does it keep old skills, does improvement compound."
     groups={[
-      { x: 30, y: 50, w: 220, h: 90, stack: 2 },
+      { x: 20, y: 50, w: 220, h: 90, stack: 2 },
     ]}
     nodes={[
-      { id: 'eps', x: 50, y: 66, w: 180, h: 58, label: 'Episodes\n(the loop in Figure 1)', kind: 'neutral' },
-      { id: 'upd', x: 410, y: 66, w: 180, h: 58, label: 'Update π and M', kind: 'mesh' },
-      { id: 'agent', x: 770, y: 66, w: 180, h: 58, label: 'Better agent', kind: 'engine' },
-      { x: 70, y: 214, w: 220, label: 'Adapts faster?', kind: 'tag', shape: 'pill' },
-      { x: 390, y: 214, w: 220, label: 'Keeps old skills?', kind: 'tag', shape: 'pill' },
-      { x: 710, y: 214, w: 220, label: 'Improvement compounds?', kind: 'tag', shape: 'pill' },
+      { id: 'eps', x: 40, y: 66, w: 180, h: 58, label: 'Episodes\n(the loop in Figure 1)', kind: 'neutral' },
+      { id: 'upd', x: 340, y: 66, w: 180, h: 58, label: 'Update π and M', kind: 'mesh' },
+      { id: 'agent', x: 640, y: 66, w: 180, h: 58, label: 'Better agent', kind: 'engine' },
+      { x: 30, y: 214, w: 210, label: 'Adapts faster?', kind: 'tag', shape: 'pill' },
+      { x: 325, y: 214, w: 210, label: 'Keeps old skills?', kind: 'tag', shape: 'pill' },
+      { x: 620, y: 214, w: 210, label: 'Improvement compounds?', kind: 'tag', shape: 'pill' },
     ]}
     edges={[
       { from: 'eps', to: 'upd', label: 'experience', step: 0 },
       { from: 'upd', to: 'agent', step: 1 },
-      { from: 'agent', to: 'eps', fromSide: 'bottom', toSide: 'bottom', via: [[860, 180], [140, 180]], label: 'next episodes', step: 2 },
+      { from: 'agent', to: 'eps', fromSide: 'bottom', toSide: 'bottom', via: [[730, 180], [130, 180]], label: 'next episodes', step: 2 },
     ]}
   />
 </Figure>
