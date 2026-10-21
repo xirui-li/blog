@@ -1,0 +1,107 @@
+---
+// Three ways a VLM emits robot actions, shown as code cards for the same
+// motion: direct numeric rows, a tool call, and a program. `examples` (one
+// line per card, citations included) comes from the post so reference
+// numbers stay in the post's source.
+interface Props {
+  examples: [string, string, string];
+}
+
+const { examples } = Astro.props;
+const cards = [
+  {
+    title: 'Direct numbers',
+    code: `[0.42, 0.10, 0.31, 1, 0, 0, 0, 0]
+[0.43, 0.10, 0.30, 1, 0, 0, 0, 0]
+[0.44, 0.10, 0.28, 1, 0, 0, 0, 1]`,
+    note: 'Each row is one control tick: absolute end-effector position, orientation, and gripper.',
+  },
+  {
+    title: 'Tool call',
+    code: `execute_eef_target(
+  target=[0.44, 0.10, 0.28, 1, 0, 0, 0],
+  gripper="close",
+  steps=5)
+→ measured pose, gripper state`,
+    note: 'One target, held for a few steps; the tool reports what actually happened.',
+  },
+  {
+    title: 'Program',
+    code: `for p in waypoints:
+    q = solve_ik(p, quat)
+    move_to_joints(q)
+close_gripper()
+if not grasped():
+    retry()`,
+    note: 'Code that computes and sends many targets, checks, and retries on its own.',
+  },
+];
+---
+
+<div class="af">
+  {
+    cards.map((c, i) => (
+      <div class="af-card">
+        <p class="af-title">{c.title}</p>
+        <pre class="af-code"><code>{c.code}</code></pre>
+        <p class="af-note">{c.note}</p>
+        <p class="af-example">{examples[i]}</p>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .af {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .af-card {
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    border: 1px dashed #b4b8be;
+    border-radius: 12px;
+  }
+
+  .af-title {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.72px;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .af-code {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    font: 11.5px/1.6 var(--mono);
+    overflow-x: auto;
+  }
+
+  .af-note {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--body-ink);
+  }
+
+  .af-example {
+    margin: auto 0 0;
+    padding-top: 8px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .af {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
