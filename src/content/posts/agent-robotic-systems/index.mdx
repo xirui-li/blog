@@ -141,13 +141,13 @@ What the agent may see sets how hard the same task is (Table 3), and even a "suc
   caption="Simulation can expose privileged state that a real robot never has; Embodied First Exam evaluates agents with and without it [17]."
 >
 
-| Level | Example | Who gets it |
-|---|---|---|
-| Images | RGB from one or more cameras | Every system |
-| Robot state | Joint angles, end-effector pose, depth | Most VLAs |
-| Geometry and calibration | Camera intrinsics, robot model, object meshes | 3D reasoning and planning |
-| Privileged state | Ground-truth object poses from the simulator | Simulation only |
-| Feedback | Tool return values, success signals | LLM-based agents |
+| Level | Example | VLA | WAM | VLM agent |
+|---|---|---|---|---|
+| Images | RGB from one or more cameras | Yes | Yes | Yes |
+| Robot state | Joint angles, end-effector pose, depth | Usually | Usually | As text, through tools |
+| Geometry and calibration | Camera intrinsics, robot model, object meshes | Rarely | Rarely | Through tools |
+| Privileged state | Ground-truth object poses from the simulator | In simulation | In simulation | In simulation |
+| Feedback | Tool return values, success signals | No | Predicted, not observed | Yes |
 
 </Figure>
 
