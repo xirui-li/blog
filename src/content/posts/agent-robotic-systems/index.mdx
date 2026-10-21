@@ -128,6 +128,8 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [5, 6].
+
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
     Background on the end-to-end families (inputs and outputs):
@@ -142,7 +144,8 @@ import Diagram from '../../../components/Diagram.astro';
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Surveys to cite (verify before adding to References): Towards Embodied Agentic AI (2025); Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025, v3 2026); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
+    Cited: Towards Embodied Agentic AI [5]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [6].
+    Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
   kind="table"
@@ -173,4 +176,6 @@ import Diagram from '../../../components/Diagram.astro';
 2. Ai2. [MolmoAct2: Action Reasoning Models for Real-world Deployment](https://allenai.org/papers/molmoact2). 2026.
 3. S. Ye et al. [World Action Models are Zero-shot Policies](https://arxiv.org/abs/2602.15922). arXiv:2602.15922, 2026.
 4. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
+5. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+6. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
 
