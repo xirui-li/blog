@@ -343,8 +343,7 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
     label="Two panels. Implicit: the robot sends frames to a VLA, which keeps state in its weights and recent frames and sends actions back. Explicit: the robot's receipt is written into memory by a rule, a read rule builds the VLM's context from memory, and the VLM sends an action to the robot."
     groups={[
       { x: 10, y: 40, w: 400, h: 250, label: 'Implicit: inside the model' },
-      { x: 450, y: 40, w: 640, h: 250, label: 'Explicit: in the harness' },
-      { x: 610, y: 128, w: 460, h: 150, label: 'Harness', labelPos: 'bracket' },
+      { x: 450, y: 40, w: 640, h: 250, label: 'Explicit: outside the model' },
     ]}
     nodes={[
       { id: 'i_vla', x: 120, y: 70, w: 180, h: 60, label: 'VLA\nweights + last frames', kind: 'decoder' },
