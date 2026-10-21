@@ -333,34 +333,34 @@ Once the model is in the loop, how much each decision delegates also varies wide
 In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules write, update, and delete what it remembers, and decide what the model reads (Figure 5, Table 8). Coding agents already work this way: Claude Code loads CLAUDE.md files into every session and compacts the conversation into a summary when the context fills up [29], and Codex reads AGENTS.md instruction files from the project before every task [30].
 
 <Figure
-  width={1100}
+  width={870}
   title="Memory inside the model, or in the harness."
   caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness sits between the model and the robot. It writes observations, tool receipts, and every executed action into memory M, updates or deletes entries by rule, and builds the context the model reads."
 >
   <Diagram
-    width={1100}
+    width={870}
     height={300}
     animate
     label="Two panels. Implicit: the robot sends frames to a VLA, which keeps state in its weights and recent frames and sends actions back. Explicit: the robot's receipt is written into memory by a rule, a read rule builds the VLM's context from memory, and the VLM sends an action to the robot."
     groups={[
-      { x: 10, y: 40, w: 400, h: 250, label: 'Implicit: inside the model' },
-      { x: 450, y: 40, w: 640, h: 250, label: 'Explicit: outside the model' },
+      { x: 10, y: 40, w: 300, h: 250, label: 'Implicit: inside the model' },
+      { x: 340, y: 40, w: 520, h: 250, label: 'Explicit: outside the model' },
     ]}
     nodes={[
-      { id: 'i_vla', x: 120, y: 70, w: 180, h: 60, label: 'VLA\nweights + last frames', kind: 'decoder' },
-      { id: 'i_robot', x: 120, y: 220, w: 180, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
-      { id: 'e_vlm', x: 770, y: 56, w: 140, h: 44, label: 'VLM', kind: 'engine' },
-      { id: 'e_mem', x: 765, y: 168, w: 150, h: 44, label: 'Memory M', kind: 'source' },
-      { x: 755, y: 228, w: 170, h: 26, label: 'update · delete', kind: 'tag', shape: 'pill', size: 13 },
-      { id: 'e_robot', x: 470, y: 168, w: 100, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'i_vla', x: 60, y: 70, w: 200, h: 60, label: 'VLA\nweights + last frames', kind: 'decoder' },
+      { id: 'i_robot', x: 60, y: 220, w: 200, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'e_vlm', x: 585, y: 56, w: 130, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'e_mem', x: 585, y: 168, w: 130, h: 44, label: 'Memory M', kind: 'source' },
+      { x: 575, y: 228, w: 150, h: 26, label: 'update · delete', kind: 'tag', shape: 'pill', size: 13 },
+      { id: 'e_robot', x: 350, y: 168, w: 82, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
     ]}
     edges={[
       { from: 'i_robot', to: 'i_vla', fromAt: 0.22, toAt: 0.22, label: 'frames', step: 0 },
       { from: 'i_vla', to: 'i_robot', fromAt: 0.78, toAt: 0.78, label: 'actions', step: 1 },
-      { from: 'e_robot', to: 'e_mem', label: 'write: obs, receipt', step: 0 },
+      { from: 'e_robot', to: 'e_mem', label: 'write: obs', step: 0 },
       { from: 'e_mem', to: 'e_vlm', label: 'read: context', step: 1 },
       { from: 'e_vlm', to: 'e_robot', fromSide: 'left', toSide: 'top', label: 'action', labelAt: 0.4, step: 2 },
-      { from: 'e_vlm', to: 'e_mem', fromSide: 'right', toSide: 'right', via: [[990, 78], [990, 190]], label: 'write: action', labelAt: 0.62, step: 2 },
+      { from: 'e_vlm', to: 'e_mem', fromSide: 'right', toSide: 'right', via: [[805, 78], [805, 190]], label: 'write: action', labelAt: 0.62, step: 2 },
     ]}
   />
 </Figure>
