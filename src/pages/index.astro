@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { getPosts, formatDate, withBase } from '../lib/posts';
 import { SITE } from '../site.config';
+import SocialIcons from '../components/SocialIcons.astro';
 
 const posts = await getPosts();
 ---
@@ -11,6 +12,7 @@ const posts = await getPosts();
     <p class="eyebrow">{SITE.author}</p>
     <h1>{SITE.name}</h1>
     <p>{SITE.description}</p>
+    <SocialIcons />
   </section>
 
   <ul class="post-list">
