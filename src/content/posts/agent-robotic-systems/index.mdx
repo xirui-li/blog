@@ -110,7 +110,7 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
 
 Besides the instruction, the agent starts with prior knowledge K: what its skills do, how to call them, which rules to follow, and examples of the task. An end-to-end policy stores all of this in its weights, so changing it means retraining. An LLM-based agent receives K in its context, where it can be read, edited, or swapped.
 
-Examples in K also become a way to learn. With in-context learning, the agent adapts to a new task from demonstrations placed in its context at deployment, without any weight update. GPT-Policy [12] lets a VLM learn robot tasks from demonstrations, including human videos without robot action labels, and from interaction feedback. RoboICL [13] writes demonstrations and the agent's own past interactions in the same format of observation, action, receipt, and next observation, so the two can be used together. A recent survey [14] groups these methods into context-conditioned policies, geometric demonstration transfer, world-model-based control, and skill- and agent-based execution.
+Examples in K also become a way to learn. With in-context learning, the agent adapts to a new task from demonstrations placed in its context at deployment, without any weight update. A recent survey [12] groups these methods into four families: context-conditioned policies, geometric demonstration transfer, world-model-based control, and skill- and agent-based execution. The first and third sit roughly on the end-to-end side, with demonstrations fed into a policy or used to predict futures; this post focuses on the last, where the context steers what an agent decides to do. GPT-Policy [13] lets a VLM learn robot tasks from demonstrations, including human videos without robot action labels, and from interaction feedback. RoboICL [14] writes demonstrations and the agent's own past interactions in the same format of observation, action, receipt, and next observation, so the two can be used together.
 
 In Figure 1, demonstrations enter as K and seed memory M, while feedback comes back as observations and is written into M. No weights change, so in-context learning lives in the Task and Memory boxes, not in Learning.
 
@@ -156,7 +156,7 @@ In Figure 1, demonstrations enter as K and seed memory M, while feedback comes b
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
-    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [12]) — it is covered under Task (K) and Agent: Policy and Memory (M).
+    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [13]) — it is covered under Task (K) and Agent: Policy and Memory (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## VLA vs. WAM vs. LLM-Based Agent
@@ -220,8 +220,8 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 9. Y. Jiang et al. [VIMA: General Robot Manipulation with Multimodal Prompts](https://arxiv.org/abs/2210.03094). International Conference on Machine Learning (ICML), 2023.
 10. S. Nasiriany et al. [PIVOT: Iterative Visual Prompting Elicits Actionable Knowledge for VLMs](https://arxiv.org/abs/2402.07872). International Conference on Machine Learning (ICML), 2024.
 11. B. Liu et al. [LLM+P: Empowering Large Language Models with Optimal Planning Proficiency](https://arxiv.org/abs/2304.11477). arXiv:2304.11477, 2023.
-12. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
-13. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
-14. H. Huang et al. [In-Context Learning for Robots: Methods and Applications](https://arxiv.org/abs/2609.36012). arXiv:2609.36012, 2026.
+12. H. Huang et al. [In-Context Learning for Robots: Methods and Applications](https://arxiv.org/abs/2609.36012). arXiv:2609.36012, 2026.
+13. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
+14. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
 15. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
 16. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
