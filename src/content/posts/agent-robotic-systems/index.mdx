@@ -120,9 +120,9 @@ Prior knowledge K, such as what skills do, how to call them, rules, and examples
 | Family | What the context steers | Side | Example |
 |---|---|---|---|
 | Context-conditioned policies | The policy's input | End-to-end | VIMA [9] |
-| Geometric demonstration transfer | How a demo maps onto new objects | Geometric | |
-| World-model-based control | Predicted futures | End-to-end (WAM) | |
-| **Skill- and agent-based execution** | **Which skills the agent runs** | **LLM-based agent** | **GPT-Policy [13], RoboICL [14]** |
+| Geometric demonstration transfer | How a demo maps onto new objects | Geometric | Neural Descriptor Fields [13] |
+| World-model-based control | Predicted futures | End-to-end (WAM) | Zero-WAM [14] |
+| **Skill- and agent-based execution** | **Which skills the agent runs** | **LLM-based agent** | **GPT-Policy [15], RoboICL [16]** |
 
 </Figure>
 
@@ -168,12 +168,12 @@ Prior knowledge K, such as what skills do, how to call them, rules, and examples
 {/* Figure 1: the Learning box and the stack of N episodes — outside the runtime loop.
     - Meta-learning, continual learning, recursive self-improvement (RSI): spell out RSI on first use.
     - What changes: the policy π and memory M (how M is updated; sometimes long-term memory directly) — not one step of the runtime.
-    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [13]) — it is covered under Task (K) and Agent: Policy and Memory (M).
+    - In-context learning is NOT in this box: weights stay fixed and only the context changes (e.g. GPT-Policy [15]) — it is covered under Task (K) and Agent: Policy and Memory (M).
     - Feedback for learning: who decides success (R, r_{t+1}) — rules, learned detectors, or a VLM. */}
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [15, 16].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [17, 18].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -189,7 +189,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [15]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [16].
+    Cited: Towards Embodied Agentic AI [17]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [18].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -233,7 +233,9 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 10. S. Nasiriany et al. [PIVOT: Iterative Visual Prompting Elicits Actionable Knowledge for VLMs](https://arxiv.org/abs/2402.07872). International Conference on Machine Learning (ICML), 2024.
 11. B. Liu et al. [LLM+P: Empowering Large Language Models with Optimal Planning Proficiency](https://arxiv.org/abs/2304.11477). arXiv:2304.11477, 2023.
 12. H. Huang et al. [In-Context Learning for Robots: Methods and Applications](https://arxiv.org/abs/2609.36012). arXiv:2609.36012, 2026.
-13. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
-14. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
-15. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-16. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+13. A. Simeonov et al. [Neural Descriptor Fields: SE(3)-Equivariant Object Representations for Manipulation](https://arxiv.org/abs/2112.05124). IEEE International Conference on Robotics and Automation (ICRA), 2022.
+14. J. Zhou et al. [Zero-WAM: In-Context World-Action Modeling from Human Videos for Open-Ended Task Generalization](https://arxiv.org/abs/2608.26103). arXiv:2608.26103, 2026.
+15. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
+16. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
+17. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+18. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
