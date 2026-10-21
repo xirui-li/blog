@@ -15,7 +15,11 @@ const posts = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
-    authors: z.array(z.string()).default([]),
+    // An author is a name, or { name, url, mark } — `mark` (e.g. "*") is explained by `authorNote`.
+    authors: z
+      .array(z.union([z.string(), z.object({ name: z.string(), url: z.string().url().optional(), mark: z.string().optional() })]))
+      .default([]),
+    authorNote: z.string().optional(),
     tags: z.array(z.string()).default([]),
     // Side-panel 3D model for the whole post (see MODELS in src/lib/scene3d.ts).
     // Omit to cycle through models section by section.

@@ -10,7 +10,8 @@ interface Props {
 }
 
 const { post, headings } = Astro.props;
-const { title, description, date, updated, authors, draft, scene } = post.data;
+const { title, description, date, updated, authors, authorNote, draft, scene } = post.data;
+const people = authors.map((a) => (typeof a === 'string' ? { name: a, url: undefined, mark: undefined } : a));
 // Review mode is dev-only; the dynamic import keeps it out of production builds.
 const ReviewMode = import.meta.env.DEV ? (await import('../components/ReviewMode.astro')).default : null;
 const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'references'].includes(h.slug));
@@ -26,7 +27,20 @@ const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'referen
       </p>
       <h1>{title}</h1>
       <p class="post-description">{description}</p>
-      {authors.length > 0 && <p class="post-meta">{authors.join(' · ')}</p>}
+      {
+        people.length > 0 && (
+          <p class="post-meta">
+            {people.map((a, i) => (
+              <>
+                {i > 0 && ' · '}
+                {a.url ? <a href={a.url}>{a.name}</a> : a.name}
+                {a.mark && <sup class="author-mark">{a.mark}</sup>}
+              </>
+            ))}
+          </p>
+        )
+      }
+      {authorNote && <p class="author-note">{authorNote}</p>}
     </header>
 
     {

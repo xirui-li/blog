@@ -386,6 +386,28 @@ h3 {
   color: #4e555d;
 }
 
+.post-meta a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #a8aaa5;
+  text-underline-offset: 3px;
+}
+
+.post-meta a:hover {
+  color: var(--accent);
+}
+
+.author-mark {
+  margin-left: 1px;
+  font-size: 0.75em;
+}
+
+.author-note {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
 .toc {
   margin-bottom: 3rem;
   padding: 18px 0;
