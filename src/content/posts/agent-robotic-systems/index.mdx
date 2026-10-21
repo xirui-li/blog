@@ -234,7 +234,47 @@ The action space is what the VLM literally emits across the interface. It takes 
 
 ### Policy
 
-How much the policy plans by itself, and how much it hands to an executor, varies widely: the same task can be decided step by step or delegated to a whole skill (Figure 3, Table 7).
+The same VLM can be wired into a policy in different ways. Astranomy compares three on the same robot tasks [19]: the model can act directly, emitting a stretch of actions and then looking again; act as an agent, sending one target at a time through a tool and reading the feedback; or supervise another policy, accepting or editing the actions it proposes (Figure 3). In that evaluation the agentic setup did best, and supervising another policy did not clearly beat acting directly. How the model is wired into the loop matters as much as the model itself.
+
+<Figure
+  width={1100}
+  title="Three ways to wire a VLM into the loop."
+  caption="Direct: the model emits a chunk of actions, then looks again. Agentic: it sends one target at a time through a tool and reads the feedback. Orchestrated: another policy proposes actions and the model checks them. Modes from Astranomy [19]."
+>
+  <Diagram
+    width={1100}
+    height={300}
+    animate
+    label="Three small loops. Direct: the VLM sends an action chunk to the robot and gets a new image back. Agentic: the VLM sends one target to a tool, the tool moves the robot, and feedback returns to the VLM. Orchestrated: another policy proposes an action, the VLM checks it and sends it to the robot, and the image returns to the other policy."
+    groups={[
+      { x: 10, y: 40, w: 330, h: 250, label: 'Direct: actor' },
+      { x: 385, y: 40, w: 330, h: 250, label: 'Agentic: agent in a loop' },
+      { x: 760, y: 40, w: 330, h: 250, label: 'Orchestrated: supervisor' },
+    ]}
+    nodes={[
+      { id: 'd_vlm', x: 120, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'd_robot', x: 120, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'a_vlm', x: 495, y: 60, w: 110, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'a_tool', x: 495, y: 145, w: 110, h: 44, label: 'Tool', kind: 'model' },
+      { id: 'a_robot', x: 495, y: 230, w: 110, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'o_pol', x: 775, y: 60, w: 104, h: 44, label: 'Other policy', kind: 'decoder' },
+      { id: 'o_vlm', x: 985, y: 60, w: 90, h: 44, label: 'VLM', kind: 'engine' },
+      { id: 'o_robot', x: 985, y: 230, w: 90, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+    ]}
+    edges={[
+      { from: 'd_vlm', to: 'd_robot', label: 'action chunk', step: 0 },
+      { from: 'd_robot', to: 'd_vlm', fromSide: 'right', toSide: 'right', via: [[300, 252], [300, 82]], label: 'new image', step: 1 },
+      { from: 'a_vlm', to: 'a_tool', label: 'one target', step: 0 },
+      { from: 'a_tool', to: 'a_robot', step: 1 },
+      { from: 'a_robot', to: 'a_vlm', fromSide: 'right', toSide: 'right', via: [[675, 252], [675, 82]], label: 'feedback', step: 2 },
+      { from: 'o_pol', to: 'o_vlm', label: 'proposal', step: 0 },
+      { from: 'o_vlm', to: 'o_robot', label: 'checked action', step: 1 },
+      { from: 'o_robot', to: 'o_pol', fromSide: 'left', toSide: 'bottom', label: 'image', step: 2 },
+    ]}
+  />
+</Figure>
+
+Once the model is in the loop, how much each decision delegates also varies widely: the same task can be decided step by step or handed to a whole skill (Figure 4, Table 7).
 
 <Figure
   width={900}
