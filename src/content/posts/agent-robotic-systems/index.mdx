@@ -329,7 +329,56 @@ Once the model is in the loop, how much each decision delegates also varies wide
 
 ### Memory
 
-{/* TODO: memory types (working, episodic, semantic, procedural) and the four questions — see the notes above. */}
+In an end-to-end policy, memory is implicit: whatever the network keeps in its weights and in its short window of recent frames. An agent system moves memory out of the model and into the harness, where explicit rules decide what is written, kept, read, and forgotten (Figure 5, Table 8).
+
+<Figure
+  width={1100}
+  title="Memory inside the model, or in the harness."
+  caption="Left: an end-to-end policy carries state implicitly in its weights and recent frames. Right: the harness keeps memory M outside the model and controls it with explicit rules; the model only sees what the read rule puts in its context."
+>
+  <Diagram
+    width={1100}
+    height={300}
+    animate
+    label="Two panels. Implicit: the robot sends frames to a VLA, which keeps state in its weights and recent frames and sends actions back. Explicit: the robot's receipt is written into memory by a rule, a read rule builds the VLM's context from memory, and the VLM sends an action to the robot."
+    groups={[
+      { x: 10, y: 40, w: 400, h: 250, label: 'Implicit: inside the model' },
+      { x: 450, y: 40, w: 640, h: 250, label: 'Explicit: in the harness' },
+    ]}
+    nodes={[
+      { id: 'i_vla', x: 120, y: 70, w: 180, h: 60, label: 'VLA\nweights + last frames', kind: 'decoder' },
+      { id: 'i_robot', x: 120, y: 220, w: 180, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { id: 'e_vlm', x: 730, y: 70, w: 150, h: 50, label: 'VLM', kind: 'engine' },
+      { id: 'e_mem', x: 730, y: 215, w: 150, h: 50, label: 'Memory M', kind: 'source' },
+      { id: 'e_robot', x: 475, y: 218, w: 105, h: 44, label: 'Robot', kind: 'neutral', shape: 'pill' },
+      { x: 900, y: 225, w: 175, label: 'keep · forget · compress', kind: 'tag', shape: 'pill' },
+    ]}
+    edges={[
+      { from: 'i_robot', to: 'i_vla', fromAt: 0.22, toAt: 0.22, label: 'frames', step: 0 },
+      { from: 'i_vla', to: 'i_robot', fromAt: 0.78, toAt: 0.78, label: 'actions', step: 1 },
+      { from: 'e_robot', to: 'e_mem', label: 'write: receipt', step: 0 },
+      { from: 'e_mem', to: 'e_vlm', label: 'read: context', step: 1 },
+      { from: 'e_vlm', to: 'e_robot', fromSide: 'left', toSide: 'top', label: 'action', step: 2 },
+    ]}
+  />
+</Figure>
+
+<Figure
+  kind="table"
+  compact
+  title="Memory as harness rules."
+  caption="Each rule is a design choice the harness makes explicit; in an end-to-end policy the same choices are fixed by the architecture and training."
+>
+
+| Rule | Implicit (end-to-end) | Explicit (harness) | Example |
+|---|---|---|---|
+| Write | Training data, through the weights | Every action and its receipt, as a record | Observation, action, receipt records in RoboICL [16] |
+| Keep | A fixed window of recent frames | Bounded memory: demonstrations plus recent interactions | RoboICL's anchored memory [16] |
+| Read | The whole window, every step | Context built for the current step, including retrieved experience | Harness VLA retrieves memory from exploration [28] |
+| Forget | Whatever falls out of the window | Compress or drop by rule, keeping what matters for the task | GPT-Policy's context compiler [15] |
+| Persist | One episode; lasting change only by retraining | Across steps, episodes, or tasks | Harness VLA reuses exploration memory at evaluation [28] |
+
+</Figure>
 
 ## Time: Steps, Chunks, and Asynchrony
 
