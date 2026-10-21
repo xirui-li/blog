@@ -108,11 +108,11 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
 
 ### Prior Knowledge
 
-{/* Prior knowledge K — and in-context learning:
-    - What goes in K: skill descriptions, API docs, rules, maps — and examples / demonstrations.
-    - In-context learning (ICL): the agent adapts to a task from examples placed in its context at deployment, with no gradient update. GPT-Policy [12] does this with a VLM agent: demonstrations (even human videos without robot action labels), examples, and interaction feedback go into the context; a context compiler condenses them; a constrained controller verifies and executes each proposed action and reports the outcome.
-    - On the loop: demonstrations enter as K (seeding M), feedback arrives as observations and is written into M, and the compiler is context construction (the mₜ edge). No weights change — so ICL lives in Task + Memory, not in the Learning box.
-    - End-to-end: K is baked into the weights; adapting means retraining. Agent: K is explicit and can be read, edited, swapped, or extended with new examples. */}
+Besides the instruction, the agent starts with prior knowledge K: what its skills do, how to call them, which rules to follow, and examples of the task. An end-to-end policy stores all of this in its weights, so changing it means retraining. An LLM-based agent receives K in its context, where it can be read, edited, or swapped.
+
+Examples in K also become a way to learn. With in-context learning, the agent adapts to a new task from demonstrations placed in its context at deployment, without any weight update. GPT-Policy [12] lets a VLM learn robot tasks from demonstrations, including human videos without robot action labels, and from interaction feedback. RoboICL [13] writes demonstrations and the agent's own past interactions in the same format of observation, action, receipt, and next observation, so the two can be used together. A recent survey [14] groups these methods into context-conditioned policies, geometric demonstration transfer, world-model-based control, and skill- and agent-based execution.
+
+In Figure 1, demonstrations enter as K and seed memory M, while feedback comes back as observations and is written into M. No weights change, so in-context learning lives in the Task and Memory boxes, not in Learning.
 
 ## Interface: Observation and Action Spaces
 
@@ -161,7 +161,7 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
 
 ## VLA vs. WAM vs. LLM-Based Agent
 
-VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [13, 14].
+VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decides how to move, a WAM also predicts what will happen, and an LLM-based agent decides what to do next, often by calling the other two as skills [15, 16].
 
 {/* Framing: the three are not on the same layer. An LLM-based agent orchestrates (what to do, which capability to call); a VLA is an action model (how to move next); a WAM couples action with prediction (what happens if I act). Comparing "LLM-based agent vs VLA/WAM" often compares a whole orchestration system with one of its action models — so this is not a ranking. A VLA can use a VLM backbone, and an agent can call a VLA as one of its skills.
 
@@ -177,7 +177,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
     What a fair comparison must control: keep the same executor and add VLM planning, memory, and outcome checks one at a time; test new instruction combinations, new objects, new physical motions, and interruptions; do not compare success rates across different real-robot setups.
 
-    Cited: Towards Embodied Agentic AI [13]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [14].
+    Cited: Towards Embodied Agentic AI [15]; Large VLM-based VLA Models for Robotic Manipulation: A Survey [16].
     Other surveys from the research notes (not verified, not cited): Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
 <Figure
@@ -221,5 +221,7 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 10. S. Nasiriany et al. [PIVOT: Iterative Visual Prompting Elicits Actionable Knowledge for VLMs](https://arxiv.org/abs/2402.07872). International Conference on Machine Learning (ICML), 2024.
 11. B. Liu et al. [LLM+P: Empowering Large Language Models with Optimal Planning Proficiency](https://arxiv.org/abs/2304.11477). arXiv:2304.11477, 2023.
 12. D. Cheng et al. [In-Context Robot Learning with VLM Agents](https://arxiv.org/abs/2609.19138). arXiv:2609.19138, 2026.
-13. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
-14. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
+13. F. Liu et al. [RoboICL: Embodied In-Context Learning with GPT-6 Astra](https://arxiv.org/abs/2609.34261). arXiv:2609.34261, 2026.
+14. H. Huang et al. [In-Context Learning for Robots: Methods and Applications](https://arxiv.org/abs/2609.36012). arXiv:2609.36012, 2026.
+15. S. Salimpour et al. [Towards Embodied Agentic AI: Review and Classification of LLM- and VLM-Driven Robot Autonomy and Interaction](https://arxiv.org/abs/2508.05294). arXiv:2508.05294, 2025.
+16. R. Shao et al. [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/abs/2508.13073). arXiv:2508.13073, 2025.
