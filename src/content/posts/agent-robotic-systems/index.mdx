@@ -144,15 +144,19 @@ import Diagram from '../../../components/Diagram.astro';
 
     Surveys to cite (verify before adding to References): Towards Embodied Agentic AI (2025); Agentic LLM-based robotic systems … agenticness and ethics (Frontiers in Robotics and AI, 2025); Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025, v3 2026); World Action Models: The Next Frontier in Embodied AI (May 2026); World-Action Models for Robot Learning and Control: A Survey (Sep 2026). */}
 
+<div class="table-compact">
+
 |  | VLA | WAM | LLM-based agent |
 |---|---|---|---|
-| Question it answers | How should the robot move next? | What will happen if I act, and how do I reach the goal? | What to do next, and with which skill? |
-| Input | Images, instruction, proprioception | Images, instruction | Images, instruction, memory, tool results |
-| Output | Low-level action chunks | Predicted future (video or latent) and action chunks | Subtasks, skill calls, programs |
-| Knowledge comes from | A VLM backbone, if it survives robot fine-tuning | Video and action data, learning physical dynamics | Web-scale vision-language pretraining, used directly |
-| Memory and feedback | Short observation window, no explicit check | Predicts outcomes, but does not check them | Keeps history, checks results, replans |
-| Strong at | Smooth, dexterous, low-latency control | New scenes; contact and dynamics | Composing existing skills for new, long tasks |
-| Limited by | Scarce, embodiment-specific robot data | Compute cost and compounding prediction error | The skill library and its interfaces; reasoning latency |
+| Role | How to move next | What happens if I act | What to do next |
+| Input | Images, instruction, proprio | Images, instruction | Images, instruction, memory, tool results |
+| Output | Action chunks | Future frames + actions | Skill calls, programs |
+| Knowledge | VLM backbone + robot data | Video + action data | Web-scale pretraining |
+| Memory / feedback | Short window, no check | Predicts, no check | History, checks, replans |
+| Strength | Dexterous, low latency | Dynamics, new scenes | Long tasks, composing skills |
+| Limit | Scarce robot data | Compute, prediction error | Skill library, latency |
+
+</div>
 
 ## Open Questions
 

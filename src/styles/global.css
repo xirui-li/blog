@@ -490,6 +490,22 @@ h3 {
   border-bottom: 0;
 }
 
+/* <div class="table-compact"> around a markdown table: 0.8× size, centered. */
+.prose > .table-compact {
+  max-width: min(80%, var(--measure));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose .table-compact table {
+  font-size: 10.5px; /* 0.8 × the default 13px table text */
+}
+
+.table-compact th,
+.table-compact td {
+  padding: 8px 10px;
+}
+
 .prose blockquote {
   margin-block: 2rem;
   padding: 0.25rem 0 0.25rem 1.5rem;
