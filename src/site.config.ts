@@ -9,7 +9,7 @@ export const SITE = {
   // A url starting with "/" is relative to the site base (e.g. "/rss.xml").
   social: [
     { name: 'Homepage', url: 'https://xirui-li.github.io/', icon: 'link' },
-    // { name: 'X', url: 'https://x.com/<handle>', icon: 'twitter' },
+    { name: 'X', url: 'https://x.com/xiruili7_li', icon: 'twitter' },
     // { name: 'Google Scholar', url: 'https://scholar.google.com/citations?user=<id>', icon: 'scholar' },
     { name: 'RSS', url: '/rss.xml', icon: 'rss' },
     { name: 'GitHub', url: 'https://github.com/xirui-li', icon: 'github' },
