@@ -1,5 +1,5 @@
 ---
-// Animated comparison of how thinking (model) and acting (robot) share time
+// Animated comparison of how responding (model) and acting (robot) share time
 // under five schemes. A playhead sweeps left to right and reveals each lane;
 // the "world" toggle restyles idle time: free when the world pauses, costly
 // when it keeps running.
@@ -48,13 +48,13 @@ const ticks = (a: number, b: number) => {
   <div class="tl-controls">
     <span class="tl-label">World</span>
     <div class="tl-seg">
-      <button type="button" data-world="paused" aria-pressed="true">Paused while the model thinks</button>
+      <button type="button" data-world="paused" aria-pressed="true">Paused while the model responds</button>
       <button type="button" data-world="running" aria-pressed="false">Keeps running</button>
     </div>
     <span class="tl-status" aria-live="polite">Idle time is free: the world waits for the model.</span>
   </div>
 
-  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Five timelines comparing when the model thinks and when the robot acts: stop and think, next chunk while acting, slow brain and fast body, write a program then run, and an async agent with preemption.">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Five timelines comparing when the model responds and when the robot acts: stop and think, next chunk while acting, slow brain and fast body, write a program then run, and an async agent with preemption.">
     <defs>
       <clipPath id={`${uid}-reveal`}>
         <rect class="tl-reveal" x="0" y="0" width={W} height={H}></rect>
@@ -75,7 +75,7 @@ const ticks = (a: number, b: number) => {
         return (
           <g>
             <text x="0" y={y + 30} class="tl-row-name">{r.name}</text>
-            <text x={X0 - 12} y={y + 17} text-anchor="end" class="tl-lane">think</text>
+            <text x={X0 - 12} y={y + 17} text-anchor="end" class="tl-lane">respond</text>
             <text x={X0 - 12} y={y + 41} text-anchor="end" class="tl-lane">act</text>
             <line x1={X0} y1={y + ROW - 8} x2={X1} y2={y + ROW - 8} class="tl-rule" />
             <g clip-path={`url(#${uid}-reveal)`}>
@@ -113,7 +113,7 @@ const ticks = (a: number, b: number) => {
     <!-- legend -->
     <g transform={`translate(${X0} ${H - 18})`}>
       <rect width="16" height="10" rx="3" class="tl-think"></rect>
-      <text x="22" y="9" class="tl-legend">model thinking</text>
+      <text x="22" y="9" class="tl-legend">model responding</text>
       <rect x="140" width="16" height="10" rx="3" class="tl-act"></rect>
       <text x="162" y="9" class="tl-legend">robot acting</text>
       <rect x="270" width="16" height="10" rx="3" class="tl-idle" fill={`url(#${uid}-hatch)`}></rect>

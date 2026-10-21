@@ -382,12 +382,12 @@ In an end-to-end policy, memory is implicit: whatever the network keeps in its w
 
 ## Time: Steps, Chunks, and Asynchrony
 
-Every scheme faces the same tension: waiting for the model stalls the robot, but acting without waiting follows a stale plan. Figure 6 compares five ways of handling it, and Table 9 lists them with representative work. Whether the world pauses while the model thinks changes the picture: RobotWorld pauses the simulator during reasoning [20], while Embodied First Exam can also keep the world running on a wall clock [17].
+Every scheme faces the same tension: waiting for the model stalls the robot, but acting without waiting follows a stale plan. Figure 6 compares five ways of handling it, and Table 9 lists them with representative work. Whether the world pauses while the model responds changes the picture: RobotWorld pauses the simulator while the model responds [20], while Embodied First Exam can also keep the world running on a wall clock [17].
 
 <Figure
   width={1100}
   title="Who waits for whom."
-  caption="Five schemes over the same stretch of time. Yellow: the model thinking; teal: the robot acting, drawn as dense ticks for fast control; shaded: the robot idle. Switch the world between paused and running to see when idle time costs."
+  caption="Five schemes over the same stretch of time. Yellow: the model responding, from observation to output action; teal: the robot acting, drawn as dense ticks for fast control; shaded: the robot idle. Switch the world between paused and running to see when idle time costs."
 >
   <TimelineCompare />
 </Figure>
@@ -395,11 +395,11 @@ Every scheme faces the same tension: waiting for the model stalls the robot, but
 <Figure
   kind="table"
   compact
-  title="How thinking and acting share time."
+  title="How responding and acting share time."
   caption="End-to-end models and agent systems resolve the same tension; the last two rows are agent-side schemes."
 >
 
-| Scheme | While the model thinks | Example |
+| Scheme | While the model responds | Example |
 |---|---|---|
 | Stop and think | The robot waits; thinking and acting alternate | Diffusion Policy [31], ReAct [1] |
 | Smoothed chunks | Still waits, but overlapping chunk predictions are blended at the boundaries | ACT [32] |
