@@ -170,7 +170,10 @@ VLAs, WAMs, and LLM-based agents are not three rungs of one ladder: a VLA decide
 
 ## Open Questions
 
-{/* What is still unsolved? Where is the field heading? */}
+1. **How do we reduce the latency of agent systems?** Each reasoning step is far slower than a control loop, so the agent has to decide [how long to commit and whether to keep thinking while it acts](#time-steps-chunks-and-asynchrony).
+2. **How do agent systems handle fine-grained manipulation?** An agent is only as dexterous as the skills it can call; contact-rich tasks may need [VLA or WAM policies as skills](#vla-vs-wam-vs-llm-based-agent).
+3. **What is the right harness interface for VLM agents?** What the agent observes, how skills are described, and what each call returns together define [the interface](#interface-observation-and-action-spaces) it reasons over.
+4. **Could we build MCP servers for robotics?** The [Model Context Protocol](https://modelcontextprotocol.io) standardizes how LLM agents connect to tools and data; robot skills and sensors could be exposed the same way.
 
 ## References
 
