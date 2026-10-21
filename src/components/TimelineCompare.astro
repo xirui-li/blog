@@ -26,7 +26,7 @@ const rows: Row[] = [
   },
   { name: 'Slow brain, fast body', think: [[0, 3], [3, 6], [6, 9], [9, 12]], act: [[0.6, 12]], idle: [[0, 0.6]], marks: [3, 6, 9], dense: true },
   { name: 'Write a program, then run', think: [[0, 3]], act: [[3, 12]], idle: [[0, 3]], dense: true },
-  { name: 'Async agent with preemption', think: [[0, 12]], act: [[1, 5], [5.4, 12]], idle: [[0, 1]], event: 5 },
+  { name: 'Monitor and interrupt', think: [[0, 12]], act: [[1, 5], [5.4, 12]], idle: [[0, 1]], event: 5 },
 ];
 
 const W = 1100;
@@ -54,7 +54,7 @@ const ticks = (a: number, b: number) => {
     <span class="tl-status" aria-live="polite">Idle time is free: the world waits for the model.</span>
   </div>
 
-  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Five timelines comparing when the model responds and when the robot acts: stop and think, next chunk while acting, slow brain and fast body, write a program then run, and an async agent with preemption.">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Five timelines comparing when the model responds and when the robot acts: stop and think, next chunk while acting, slow brain and fast body, write a program then run, and monitor and interrupt.">
     <defs>
       <clipPath id={`${uid}-reveal`}>
         <rect class="tl-reveal" x="0" y="0" width={W} height={H}></rect>
