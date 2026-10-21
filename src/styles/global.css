@@ -511,7 +511,7 @@ h3 {
 }
 
 /* Links to sections of the same page: body color, thin underline. */
-.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref]) {
+.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref], .cite) {
   color: inherit;
   text-decoration: underline;
   text-decoration-color: #a8aaa5;
@@ -519,7 +519,7 @@ h3 {
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
-.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref]):hover {
+.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref], .cite):hover {
   color: var(--accent);
   text-decoration-color: currentColor;
 }
@@ -571,6 +571,21 @@ h3 {
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 0.5rem;
+}
+
+/* Cross-reference links inserted by Post.astro: citations in the accent color,
+   figure/table references like other in-page links. */
+.prose a.cite {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.prose a.cite:hover {
+  text-decoration: underline;
+}
+
+.prose h2#references + ol > li:target {
+  background: var(--selection);
 }
 
 /* References: a "## References" heading followed by an ordered list. */

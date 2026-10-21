@@ -51,3 +51,59 @@ const toc = headings.filter((h) => h.depth === 2 && !['footnote-label', 'referen
   {ReviewMode && <ReviewMode post={post.id} />}
 </Base>
 
+<script>
+  // Cross-references: number figures, tables, and references in page order
+  // (matching the CSS counters), give them anchors, and turn "Figure N",
+  // "Table N", and "[n]" / "[n, m]" in the text into links.
+  const prose = document.querySelector<HTMLElement>('.prose');
+  if (prose) {
+    let fig = 0;
+    let tab = 0;
+    for (const f of prose.querySelectorAll<HTMLElement>('figure.figure.numbered')) {
+      f.id ||= f.classList.contains('is-table') ? `table-${++tab}` : `figure-${++fig}`;
+    }
+    const refs = prose.querySelectorAll<HTMLLIElement>('h2#references + ol > li');
+    refs.forEach((li, i) => (li.id = `ref-${i + 1}`));
+
+    const SKIP = 'a, code, pre, h1, h2, h3, h4, .figure-number, svg, script, style, h2#references + ol';
+    const pattern = /\b(Figure|Table) (\d+)\b|\[(\d+(?:,\s*\d+)*)\]/g;
+    const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT);
+    const nodes: Text[] = [];
+    while (walker.nextNode()) {
+      const n = walker.currentNode as Text;
+      if (!n.parentElement?.closest(SKIP) && (pattern.lastIndex = 0, pattern.test(n.data))) nodes.push(n);
+    }
+    const link = (href: string, text: string, cls: string) => {
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = text;
+      a.className = cls;
+      return a;
+    };
+    for (const n of nodes) {
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      for (const m of n.data.matchAll(pattern)) {
+        frag.append(n.data.slice(last, m.index));
+        if (m[1]) {
+          const id = `${m[1].toLowerCase()}-${m[2]}`;
+          frag.append(document.getElementById(id) ? link(`#${id}`, m[0], 'xref') : m[0]);
+        } else {
+          const nums = m[3].split(/,\s*/);
+          if (nums.every((k) => document.getElementById(`ref-${k}`))) {
+            frag.append('[');
+            nums.forEach((k, i) => {
+              if (i) frag.append(', ');
+              frag.append(link(`#ref-${k}`, k, 'cite'));
+            });
+            frag.append(']');
+          } else frag.append(m[0]);
+        }
+        last = m.index! + m[0].length;
+      }
+      frag.append(n.data.slice(last));
+      n.replaceWith(frag);
+    }
+  }
+</script>
+
