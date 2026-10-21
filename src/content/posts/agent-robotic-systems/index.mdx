@@ -15,7 +15,7 @@ import Diagram from '../../../components/Diagram.astro';
 
 ## The Agent–Environment Loop
 
-Every robot policy can be read as the same loop: an agent receives a task, acts on its environment, and observes what happens. An LLM-based agent makes this loop explicit, reasoning about what it knows, acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post; each section covers one part of it.
+Every robot policy can be read as the same loop: an agent receives a [task](#task-instruction-and-prior-knowledge), [acts on its environment, and observes what happens](#interface-observation-and-action-spaces). An LLM-based agent makes this loop explicit, [reasoning about what it knows](#inside-the-agent-memory-and-policy), acting, and reading the result before it reasons again, as in ReAct [1]. Figure 1 is the map for the rest of this post, from the loop's [timing](#time-steps-chunks-and-asynchrony) to [learning across episodes](#learning-across-episodes) and how [VLAs, WAMs, and LLM-based agents](#vla-vs-wam-vs-llm-based-agent) fill it in.
 
 {/* The map for the rest of the post. Introduce each part of Figure 1 and where it is discussed:
     Task (g, K) → "Task" · the agent–environment boundary (o, r / a) → "Interface" · the agent box (M, π) → "Inside the Agent" · t = 0, 1, 2, … → "Time" · the Learning box and the stack of N episodes → "Learning Across Episodes".

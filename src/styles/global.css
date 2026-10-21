@@ -510,6 +510,20 @@ h3 {
   padding: 8px 10px;
 }
 
+/* Links to sections of the same page: body color, thin underline. */
+.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref]) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #a8aaa5;
+  text-underline-offset: 4px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+.prose a[href^='#']:not(.footnote-ref, [data-footnote-backref]):hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
 .prose blockquote {
   margin-block: 2rem;
   padding: 0.25rem 0 0.25rem 1.5rem;
