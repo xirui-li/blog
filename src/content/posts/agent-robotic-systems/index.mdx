@@ -69,6 +69,10 @@ Every robot policy can be read as the same loop: an agent receives a [task](#tas
 
 ### Instruction
 
+The most common instruction is a sentence of natural language. End-to-end policies such as RT-2 [5] take a short command like "put the cup in the basket", and an LLM-based agent receives it as a text prompt. Language is easy to give, but often ambiguous: which cup, and placed where?
+
+Other formats trade that ease for precision (Table 1). A goal image shows the finished scene [6], a sketched trajectory shows the motion [7], and a video shows a person doing the task once [8]. Multimodal prompts mix text with images [9], visual marks point at where to act [10], and formal specifications such as PDDL goals make the task checkable by a planner [11]. The more precise the format, the more effort it takes to provide, and the more irrelevant detail it fixes.
+
 <Figure
   kind="table"
   compact
@@ -87,6 +91,8 @@ Every robot policy can be read as the same loop: an agent receives a [task](#tas
 | Formal specification | A PDDL goal or temporal-logic formula | Goal and constraints | LLM+P [11] |
 
 </Figure>
+
+The bigger difference is who reads the instruction. An end-to-end policy accepts only the formats it was trained on; adding sketches or videos means new data and retraining. An LLM-based agent can take anything it can read in context, such as text, images, rules, or a demonstration, and can ask a clarifying question when the instruction is ambiguous.
 
 {/* Writing outline (from the research notes):
     - The default is natural language: short imperatives for VLAs (RT-1, RT-2, OpenVLA, π0/π0.5) and a text prompt for VLM agents.
