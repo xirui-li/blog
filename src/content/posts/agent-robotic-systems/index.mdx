@@ -132,7 +132,7 @@ import Diagram from '../../../components/Diagram.astro';
 
     Background on the end-to-end families (inputs and outputs):
     - VLA, π0.5 [1] / MolmoAct 2 [2]: images + instruction (+ proprioception) → fixed-rate action chunks. π0.5 predicts a subtask in language first; MolmoAct 2 reasons spatially before acting. Reasoning stays inside one forward pass.
-    - WAM, DreamZero [3] (named the family): same input → future video + the actions that produce it; 14B autoregressive video diffusion, closed loop at 7 Hz. Reported: 62.2% vs 27.4% average task progress over the strongest pretrained VLA on AgiBot G1 (seen tasks, unseen environments and objects) — task progress, not full success; one setting only. TODO: verify these numbers in the paper.
+    - WAM, DreamZero [3] (named the family): same input → future video + the actions that produce it, from a video-diffusion backbone running closed loop. Reported to generalize to unseen environments and objects better than strong pretrained VLAs in its setting — one setting, not a general ranking.
 
     Where an agent's advantage comes from (analysis, not a proven rule):
     1. Transferable knowledge — web-scale vision-language data vs scarce, embodiment-bound robot data. But VLAs also try to inherit VLM knowledge (e.g. RT-2); what matters is whether it survives training.
