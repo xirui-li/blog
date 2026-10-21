@@ -10,7 +10,6 @@ draft: true          # remove when ready to publish
 
 import Figure from '../../../components/Figure.astro';
 import Diagram from '../../../components/Diagram.astro';
-import InContextDemo from '../../../components/InContextDemo.astro';
 
 {/* Opening: the one-paragraph thesis. The agent–environment loop fits every robot policy; what separates end-to-end models from agent systems is how each part of the loop is instantiated. */}
 
@@ -109,15 +108,7 @@ The bigger difference is who reads the instruction. An end-to-end policy accepts
 
 ### Prior Knowledge
 
-Prior knowledge K, such as what skills do, how to call them, rules, and examples, lives in a VLA's weights but in an LLM-based agent's context. There, examples become a way to learn without changing any weights (Figure 2).
-
-<Figure
-  width={760}
-  title="Learning from examples in context."
-  caption="Add demonstrations to the agent's context: what it does changes, while its weights stay the same. In Figure 1, the demonstrations enter as K and seed memory M."
->
-  <InContextDemo />
-</Figure>
+Prior knowledge K, such as what skills do, how to call them, rules, and examples, lives in a VLA's weights but in an LLM-based agent's context. There, examples become a way to learn without changing any weights, which Table 2 groups into four families.
 
 <Figure
   kind="table"
